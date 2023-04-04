@@ -2,6 +2,8 @@ use bevy::prelude::*;
 
 mod camera;
 mod player;
+mod stats;
+mod side_effects;
 
 use camera::{follow_player, spawn_camera};
 use player::{
