@@ -5,6 +5,7 @@ mod damage;
 mod player;
 mod side_effects;
 mod stats;
+mod movement;
 
 use camera::{follow_player, spawn_camera};
 use damage::{apply_damage, DamageEvent};
