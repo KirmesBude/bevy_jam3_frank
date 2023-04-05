@@ -2,11 +2,20 @@ use bevy::prelude::*;
 
 use crate::player::Player;
 
-pub fn spawn_camera(mut commands: Commands) {
+pub struct CameraPlugin;
+
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(spawn_camera)
+            .add_system(follow_player);
+    }
+}
+
+fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-pub fn follow_player(
+fn follow_player(
     mut camera_transform: Query<&mut Transform, With<Camera2d>>,
     player_transform: Query<
         &GlobalTransform,

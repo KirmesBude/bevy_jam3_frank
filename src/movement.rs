@@ -11,7 +11,8 @@ impl Plugin for MovementPlugin {
                     MovementSet::Update,
                     MovementSet::PostUpdate,
                 )
-                    .chain(),)
+                    .chain(),
+            )
             .add_system(reset_velocity_vector.in_set(MovementSet::PreUpdate))
             .add_system(apply_velocity_vector.in_set(MovementSet::PostUpdate));
     }
@@ -28,7 +29,7 @@ pub enum MovementSet {
 pub struct MovedEvent {
     pub entity: Entity,
     pub distance: f32,
-} 
+}
 
 #[derive(Debug, Default, Component)]
 pub struct VelocityVector(pub Vec2);
@@ -42,7 +43,15 @@ fn reset_velocity_vector(mut velocity_vectors: Query<&mut VelocityVector>) {
     }
 }
 
-fn apply_velocity_vector(time: Res<Time>, mut query: Query<(Entity, &mut Transform, AnyOf<(&VelocityVector, &ContinousVelocityVector)>)>, mut moved_event: EventWriter<MovedEvent>) {
+fn apply_velocity_vector(
+    time: Res<Time>,
+    mut query: Query<(
+        Entity,
+        &mut Transform,
+        AnyOf<(&VelocityVector, &ContinousVelocityVector)>,
+    )>,
+    mut moved_event: EventWriter<MovedEvent>,
+) {
     for (entity, mut transform, any_velocity) in query.iter_mut() {
         let velocity_vector = match any_velocity {
             (Some(vel), _) => vel.0,
@@ -54,6 +63,6 @@ fn apply_velocity_vector(time: Res<Time>, mut query: Query<(Entity, &mut Transfo
 
         // Maybe only send this if a specific component/option exists on the entity?
         let distance = velocity_vector.length();
-        moved_event.send(MovedEvent { entity, distance});
+        moved_event.send(MovedEvent { entity, distance });
     }
 }

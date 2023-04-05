@@ -2,6 +2,23 @@ use bevy::prelude::*;
 
 use crate::stats::base::Health;
 
+pub struct DamagePlugin;
+
+impl Plugin for DamagePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<DamageEvent>()
+            .configure_sets((DamageSet::PreApply, DamageSet::Apply, DamageSet::PostApply).chain())
+            .add_system(apply_damage.in_set(DamageSet::Apply));
+    }
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum DamageSet {
+    PreApply,
+    Apply,
+    PostApply,
+}
+
 pub struct DamageEvent {
     pub source: Entity,
     pub target: Entity,
@@ -16,7 +33,7 @@ pub enum DamageKind {
     Lethal,
 }
 
-pub fn apply_damage(
+fn apply_damage(
     mut target_health_query: Query<&mut Health>,
     mut damage_events: EventReader<DamageEvent>,
 ) {

@@ -1,17 +1,38 @@
 use bevy::prelude::*;
 
 use crate::{
-    side_effects::{
-        debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
-        PositionLL,
-    },
+    movement::{MovementSet, VelocityVector},
+    side_effects::debuffs::damage_on_move::DamageOnMove,
     stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed},
 };
 
-pub mod input;
+use self::input::{look_at_cursor, move_player};
+
+mod input;
+
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_resource::<PlayerAssets>()
+            .add_startup_system(load_player_assets)
+            .add_startup_system(spawn_player)
+            .add_system(move_player.in_set(MovementSet::Update))
+            .add_system(look_at_cursor.in_set(MovementSet::Update));
+    }
+}
 
 #[derive(Default, Component)]
 pub struct Player;
+
+#[derive(Default, Bundle)]
+pub struct PlayerBundle {
+    player: Player,
+    sprite_bundle: SpriteBundle,
+    base_stats_bundle: BaseStatsBundle,
+    damage_on_move: DamageOnMove,
+    velocity_vector: VelocityVector,
+}
 
 #[derive(Resource, Default)]
 pub struct PlayerAssets {
@@ -29,23 +50,12 @@ pub fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
             transform: Transform::from_scale(Vec3::splat(2.0)),
             ..Default::default()
         },
-        base_stats: BaseStatsBundle {
+        base_stats_bundle: BaseStatsBundle {
             health: Health(100.0),
             movement_speed: MovementSpeed(40.0),
             hurt_box: HurtBox(20.0),
         },
-        damage_on_move_bundle: DamageOnMoveBundle {
-            damage_on_move: DamageOnMove { damage: 0.5 },
-            position_ll: PositionLL(Vec2::ZERO),
-        },
-        player: Player,
+        damage_on_move: DamageOnMove(0.5),
+        ..Default::default()
     });
-}
-
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    player: Player,
-    sprite_bundle: SpriteBundle,
-    base_stats: BaseStatsBundle,
-    damage_on_move_bundle: DamageOnMoveBundle,
 }

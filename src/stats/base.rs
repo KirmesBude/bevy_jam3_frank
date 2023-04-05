@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Bundle)]
+#[derive(Default, Debug, Bundle)]
 pub struct BaseStatsBundle {
     pub health: Health,
     pub movement_speed: MovementSpeed,
@@ -10,8 +10,14 @@ pub struct BaseStatsBundle {
 #[derive(Debug, Component)]
 pub struct Health(pub f32);
 
-#[derive(Debug, Component)]
+impl Default for Health {
+    fn default() -> Self {
+        Self(100.0)
+    }
+}
+
+#[derive(Default, Debug, Component)]
 pub struct MovementSpeed(pub f32);
 
-#[derive(Debug, Component)]
+#[derive(Default, Debug, Component)]
 pub struct HurtBox(pub f32);

@@ -2,30 +2,35 @@ use std::f32::consts::FRAC_PI_2;
 
 use bevy::prelude::*;
 
+use crate::{movement::VelocityVector, stats::base::MovementSpeed};
+
 use super::Player;
 
 pub fn move_player(
-    time: Res<Time>,
-    mut player_transform: Query<&mut Transform, With<Player>>,
+    mut player_velocity_vector: Query<(&mut VelocityVector, &MovementSpeed), With<Player>>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if let Ok(mut player_transform) = player_transform.get_single_mut() {
-        // TODO: fix so diagonal movement is not faster
+    if let Ok((mut player_velocity_vector, movement_speed)) =
+        player_velocity_vector.get_single_mut()
+    {
+        let mut velocity_vector = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::Up) {
-            player_transform.translation.y += 40.0 * time.delta_seconds();
+            velocity_vector += Vec2::Y;
         }
 
         if keyboard_input.pressed(KeyCode::Down) {
-            player_transform.translation.y -= 40.0 * time.delta_seconds();
+            velocity_vector += Vec2::NEG_Y;
         }
 
         if keyboard_input.pressed(KeyCode::Right) {
-            player_transform.translation.x += 40.0 * time.delta_seconds();
+            velocity_vector += Vec2::X;
         }
 
         if keyboard_input.pressed(KeyCode::Left) {
-            player_transform.translation.x -= 40.0 * time.delta_seconds();
+            velocity_vector += Vec2::NEG_X;
         }
+
+        player_velocity_vector.0 = velocity_vector.normalize_or_zero() * movement_speed.0;
     }
 }
 

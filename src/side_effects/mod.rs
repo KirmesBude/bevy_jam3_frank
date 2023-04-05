@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 
+use self::{buffs::BuffPlugin, debuffs::DebuffPlugin};
+
 pub mod buffs;
 pub mod debuffs;
 
-#[derive(Debug, Component)]
-pub struct PositionLL(pub Vec2);
+pub struct SideEffectsPlugin;
 
-// This should be placed in PostUpdate
-pub fn save_ll_position(mut query: Query<(&Transform, &mut PositionLL)>) {
-    for (tranform, mut position_ll) in query.iter_mut() {
-        position_ll.0 = tranform.translation.truncate();
+impl Plugin for SideEffectsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(BuffPlugin).add_plugin(DebuffPlugin);
     }
 }
