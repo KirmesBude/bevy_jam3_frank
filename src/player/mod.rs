@@ -39,15 +39,15 @@ pub struct PlayerAssets {
     sprite: Handle<Image>,
 }
 
-pub fn load_player_assets(asset_server: Res<AssetServer>, mut player_assets: ResMut<PlayerAssets>) {
+fn load_player_assets(asset_server: Res<AssetServer>, mut player_assets: ResMut<PlayerAssets>) {
     player_assets.sprite = asset_server.load("player.png");
 }
 
-pub fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
+fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
     commands.spawn(PlayerBundle {
         sprite_bundle: SpriteBundle {
             texture: player_assets.sprite.clone_weak(),
-            transform: Transform::from_scale(Vec3::splat(2.0)),
+            transform: Transform::from_scale(Vec3::splat(3.0)),
             ..Default::default()
         },
         base_stats_bundle: BaseStatsBundle {
