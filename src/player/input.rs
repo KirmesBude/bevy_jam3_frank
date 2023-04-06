@@ -11,9 +11,7 @@ pub fn move_player(
     mut player_velocity_vector: Query<(&mut Velocity, &MovementSpeed), With<Player>>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if let Ok((mut player_velocity, movement_speed)) =
-        player_velocity_vector.get_single_mut()
-    {
+    if let Ok((mut player_velocity, movement_speed)) = player_velocity_vector.get_single_mut() {
         let up = keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]);
         let down = keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]);
         let left = keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]);

@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    damage::{DamageEvent, DamageKind}, movement::{MovedEvent, PositionLL},
+    damage::{DamageEvent, DamageKind},
+    movement::{MovedEvent, PositionLL},
 };
 
 #[derive(Debug, Default, Bundle)]

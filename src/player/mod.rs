@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{RigidBody, Velocity, Collider};
+use bevy_rapier2d::prelude::{Collider, RigidBody, Velocity};
 
 use crate::{
+    movement::PositionLL,
     side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
-    stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed}, movement::PositionLL,
+    stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed},
 };
 
 use self::input::{look_at_cursor, move_player};

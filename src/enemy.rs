@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Velocity, RigidBody, Collider};
+use bevy_rapier2d::prelude::{Collider, RigidBody, Velocity};
 
 use crate::{
     player::Player,
@@ -93,7 +93,7 @@ fn follow_player(
         for (enemy_transform, movement_speed, mut velocity) in enemy_query.iter_mut() {
             let direction =
                 player_transform.translation.truncate() - enemy_transform.translation.truncate();
-                velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
+            velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
         }
     }
 }

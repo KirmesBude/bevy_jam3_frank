@@ -3,12 +3,12 @@ use bevy::prelude::*;
 mod camera;
 mod damage;
 mod enemy;
+mod movement;
 mod player;
 mod side_effects;
 mod stats;
-mod movement;
 
-use bevy_rapier2d::prelude::{RapierPhysicsPlugin, NoUserData, RapierConfiguration};
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use camera::CameraPlugin;
 use damage::DamagePlugin;
 use enemy::EnemyPlugin;
