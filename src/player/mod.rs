@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::{Collider, RigidBody, Velocity};
 use crate::{
     movement::PositionLL,
     side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
-    stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed},
+    stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
 use self::input::{look_at_cursor, move_player};
@@ -57,7 +57,6 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
         base_stats_bundle: BaseStatsBundle {
             health: Health(100.0),
             movement_speed: MovementSpeed(40.0),
-            hurt_box: HurtBox(20.0),
         },
         damage_on_move_bundle: DamageOnMoveBundle {
             damage_on_move: DamageOnMove(0.5),

@@ -4,7 +4,6 @@ use bevy::prelude::*;
 pub struct BaseStatsBundle {
     pub health: Health,
     pub movement_speed: MovementSpeed,
-    pub hurt_box: HurtBox,
 }
 
 #[derive(Debug, Component)]
@@ -19,5 +18,3 @@ impl Default for Health {
 #[derive(Default, Debug, Component)]
 pub struct MovementSpeed(pub f32);
 
-#[derive(Default, Debug, Component)]
-pub struct HurtBox(pub f32);

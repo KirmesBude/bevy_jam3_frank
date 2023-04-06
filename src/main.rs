@@ -7,6 +7,7 @@ mod movement;
 mod player;
 mod side_effects;
 mod stats;
+mod collision;
 
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use camera::CameraPlugin;
