@@ -1,9 +1,9 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::{Velocity, RigidBody, Collider};
 
 use crate::{
-    movement::{MovementSet, VelocityVector},
     player::Player,
     stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed},
 };
@@ -17,7 +17,7 @@ impl Plugin for EnemyPlugin {
             .add_startup_system(load_enemy_assets)
             .add_system(spawn_enemy_continiously)
             .add_system(spawn_enemy.after(spawn_enemy_continiously))
-            .add_system(follow_player.in_set(MovementSet::Update));
+            .add_system(follow_player);
     }
 }
 
@@ -34,7 +34,9 @@ pub struct EnemyBundle {
     enemy: Enemy,
     sprite_bundle: SpriteBundle,
     base_stats_bundle: BaseStatsBundle,
-    velocity_vector: VelocityVector,
+    velocity: Velocity,
+    rigid_body: RigidBody,
+    collider: Collider,
 }
 
 pub fn load_enemy_assets(asset_server: Res<AssetServer>, mut enemy_assets: ResMut<EnemyAssets>) {
@@ -77,19 +79,21 @@ fn spawn_bomb(commands: &mut Commands, enemy_assets: &Res<EnemyAssets>, transfor
             movement_speed: MovementSpeed(20.0),
             hurt_box: HurtBox(20.0),
         },
+        collider: Collider::ball(15.0),
+        rigid_body: RigidBody::Dynamic,
         ..Default::default()
     });
 }
 
 fn follow_player(
-    mut enemy_query: Query<(&Transform, &MovementSpeed, &mut VelocityVector), With<Enemy>>,
+    mut enemy_query: Query<(&Transform, &MovementSpeed, &mut Velocity), With<Enemy>>,
     player_query: Query<&Transform, With<Player>>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
-        for (enemy_transform, movement_speed, mut velocity_vector) in enemy_query.iter_mut() {
+        for (enemy_transform, movement_speed, mut velocity) in enemy_query.iter_mut() {
             let direction =
                 player_transform.translation.truncate() - enemy_transform.translation.truncate();
-            velocity_vector.0 = direction.normalize_or_zero() * movement_speed.0;
+                velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
         }
     }
 }

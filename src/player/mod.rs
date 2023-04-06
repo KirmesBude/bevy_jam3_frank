@@ -1,9 +1,9 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::{RigidBody, Velocity, Collider};
 
 use crate::{
-    movement::{MovementSet, VelocityVector},
-    side_effects::debuffs::damage_on_move::DamageOnMove,
-    stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed},
+    side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
+    stats::base::{BaseStatsBundle, Health, HurtBox, MovementSpeed}, movement::PositionLL,
 };
 
 use self::input::{look_at_cursor, move_player};
@@ -17,8 +17,8 @@ impl Plugin for PlayerPlugin {
         app.init_resource::<PlayerAssets>()
             .add_startup_system(load_player_assets)
             .add_startup_system(spawn_player)
-            .add_system(move_player.in_set(MovementSet::Update))
-            .add_system(look_at_cursor.in_set(MovementSet::Update));
+            .add_system(move_player)
+            .add_system(look_at_cursor);
     }
 }
 
@@ -30,8 +30,10 @@ pub struct PlayerBundle {
     player: Player,
     sprite_bundle: SpriteBundle,
     base_stats_bundle: BaseStatsBundle,
-    damage_on_move: DamageOnMove,
-    velocity_vector: VelocityVector,
+    damage_on_move_bundle: DamageOnMoveBundle,
+    velocity: Velocity,
+    rigid_body: RigidBody,
+    collider: Collider,
 }
 
 #[derive(Resource, Default)]
@@ -44,10 +46,11 @@ fn load_player_assets(asset_server: Res<AssetServer>, mut player_assets: ResMut<
 }
 
 fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
+    let transform = Transform::from_scale(Vec3::splat(3.0));
     commands.spawn(PlayerBundle {
         sprite_bundle: SpriteBundle {
             texture: player_assets.sprite.clone_weak(),
-            transform: Transform::from_scale(Vec3::splat(3.0)),
+            transform: transform,
             ..Default::default()
         },
         base_stats_bundle: BaseStatsBundle {
@@ -55,7 +58,12 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
             movement_speed: MovementSpeed(40.0),
             hurt_box: HurtBox(20.0),
         },
-        damage_on_move: DamageOnMove(0.5),
+        damage_on_move_bundle: DamageOnMoveBundle {
+            damage_on_move: DamageOnMove(0.5),
+            position_ll: PositionLL::from_transform(&transform),
+        },
+        collider: Collider::ball(15.0),
+        rigid_body: RigidBody::Dynamic,
         ..Default::default()
     });
 }

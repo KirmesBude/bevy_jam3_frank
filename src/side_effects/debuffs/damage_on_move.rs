@@ -1,9 +1,14 @@
 use bevy::prelude::*;
 
 use crate::{
-    damage::{DamageEvent, DamageKind},
-    movement::MovedEvent,
+    damage::{DamageEvent, DamageKind}, movement::{MovedEvent, PositionLL},
 };
+
+#[derive(Debug, Default, Bundle)]
+pub struct DamageOnMoveBundle {
+    pub damage_on_move: DamageOnMove,
+    pub position_ll: PositionLL,
+}
 
 #[derive(Default, Debug, Component)]
 pub struct DamageOnMove(pub f32);

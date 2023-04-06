@@ -1,36 +1,33 @@
 use std::f32::consts::FRAC_PI_2;
 
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::Velocity;
 
-use crate::{movement::VelocityVector, stats::base::MovementSpeed};
+use crate::stats::base::MovementSpeed;
 
 use super::Player;
 
 pub fn move_player(
-    mut player_velocity_vector: Query<(&mut VelocityVector, &MovementSpeed), With<Player>>,
+    mut player_velocity_vector: Query<(&mut Velocity, &MovementSpeed), With<Player>>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if let Ok((mut player_velocity_vector, movement_speed)) =
+    if let Ok((mut player_velocity, movement_speed)) =
         player_velocity_vector.get_single_mut()
     {
-        let mut velocity_vector = Vec2::ZERO;
-        if keyboard_input.pressed(KeyCode::Up) {
-            velocity_vector += Vec2::Y;
+        let up = keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]);
+        let down = keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]);
+        let left = keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]);
+        let right = keyboard_input.any_pressed([KeyCode::D, KeyCode::Right]);
+
+        let x_axis = -(left as i8) + right as i8;
+        let y_axis = -(down as i8) + up as i8;
+
+        let mut move_delta = Vec2::new(x_axis as f32, y_axis as f32);
+        if move_delta != Vec2::ZERO {
+            move_delta /= move_delta.length();
         }
 
-        if keyboard_input.pressed(KeyCode::Down) {
-            velocity_vector += Vec2::NEG_Y;
-        }
-
-        if keyboard_input.pressed(KeyCode::Right) {
-            velocity_vector += Vec2::X;
-        }
-
-        if keyboard_input.pressed(KeyCode::Left) {
-            velocity_vector += Vec2::NEG_X;
-        }
-
-        player_velocity_vector.0 = velocity_vector.normalize_or_zero() * movement_speed.0;
+        player_velocity.linvel = move_delta * movement_speed.0;
     }
 }
 
