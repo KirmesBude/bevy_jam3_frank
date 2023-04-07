@@ -17,4 +17,3 @@ impl Default for Health {
 
 #[derive(Default, Debug, Component)]
 pub struct MovementSpeed(pub f32);
-

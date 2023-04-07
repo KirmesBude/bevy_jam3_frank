@@ -46,10 +46,12 @@ fn apply_damage(
                 DamageKind::Lethal => new_health.max(0.0),
             };
 
+            /*
             println!(
                 "{:?} received {} damage from {:?}. New health: {}!",
                 damage_event.source, damage_event.amount, damage_event.target, target_health.0
             );
+            */
         }
     }
 }

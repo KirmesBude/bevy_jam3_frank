@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, RigidBody, Velocity};
+use bevy_rapier2d::prelude::{Collider, CollisionGroups, RigidBody, Velocity};
 
 use crate::{
     player::Player,
@@ -41,6 +41,7 @@ pub struct EnemyBundle {
     velocity: Velocity,
     rigid_body: RigidBody,
     collider: Collider,
+    collision_group: CollisionGroups,
 }
 
 pub fn load_enemy_assets(asset_server: Res<AssetServer>, mut enemy_assets: ResMut<EnemyAssets>) {
