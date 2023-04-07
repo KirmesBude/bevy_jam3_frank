@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, RigidBody, Sensor, Velocity};
+use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
-    collision::CollisionMembership,
+    collision::{HurtBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
     movement::PositionLL,
     side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
@@ -33,10 +33,7 @@ pub struct PlayerBundle {
     sprite_bundle: SpriteBundle,
     base_stats_bundle: BaseStatsBundle,
     damage_on_move_bundle: DamageOnMoveBundle,
-    velocity: Velocity,
-    collision_groups: CollisionGroups,
-    rigid_body: RigidBody,
-    collider: Collider,
+    physics_collision_bundle: PhysicsCollisionBundle,
 }
 
 #[derive(Resource, Default)]
@@ -52,9 +49,9 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
     let hurt_box = commands
         .spawn((
             SpatialBundle::default(),
-            Collider::ball(15.0),
-            CollisionGroups::new(CollisionMembership::PLAYER, CollisionMembership::ENEMY),
-            Sensor,
+            HurtBoxBundle::default()
+                .collider(Collider::ball(15.0))
+                .memberships(MyCollisionGroups::PLAYER),
         ))
         .id();
     let transform = Transform::from_scale(Vec3::splat(3.0));
@@ -62,7 +59,7 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
         .spawn(PlayerBundle {
             sprite_bundle: SpriteBundle {
                 texture: player_assets.sprite.clone_weak(),
-                transform: transform,
+                transform,
                 ..Default::default()
             },
             base_stats_bundle: BaseStatsBundle {
@@ -73,12 +70,9 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
                 damage_on_move: DamageOnMove(0.5),
                 position_ll: PositionLL::from_transform(&transform),
             },
-            collider: Collider::ball(15.0),
-            collision_groups: CollisionGroups::new(
-                CollisionMembership::PHYSICS,
-                CollisionMembership::PHYSICS,
-            ),
-            rigid_body: RigidBody::Dynamic,
+            physics_collision_bundle: PhysicsCollisionBundle::default()
+                .collider(Collider::ball(15.0))
+                .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
         .add_child(hurt_box);

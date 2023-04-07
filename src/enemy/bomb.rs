@@ -1,12 +1,12 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody, Sensor};
+use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
-    collision::CollisionMembership,
+    collision::{HitBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
-use super::{Enemy, EnemyAssets, EnemyBundle};
+use super::{EnemyAssets, EnemyBundle};
 
 #[derive(Debug, Default, Component)]
 pub struct Bomb;
@@ -15,15 +15,14 @@ pub fn spawn_bomb(commands: &mut Commands, enemy_assets: &Res<EnemyAssets>, tran
     let hit_box = commands
         .spawn((
             SpatialBundle::default(),
-            Collider::ball(15.0),
-            CollisionGroups::new(CollisionMembership::ENEMY, CollisionMembership::PLAYER),
-            ActiveEvents::COLLISION_EVENTS,
-            Sensor,
+            HitBoxBundle::default()
+                .collider(Collider::ball(15.0))
+                .memberships(MyCollisionGroups::ENEMY)
+                .filters(MyCollisionGroups::PLAYER),
         ))
         .id();
     commands
         .spawn(EnemyBundle {
-            enemy: Enemy,
             sprite_bundle: SpriteBundle {
                 transform: transform.with_scale(Vec3::splat(2.0)),
                 texture: enemy_assets.bomb.clone_weak(),
@@ -33,12 +32,9 @@ pub fn spawn_bomb(commands: &mut Commands, enemy_assets: &Res<EnemyAssets>, tran
                 health: Health(50.0),
                 movement_speed: MovementSpeed(20.0),
             },
-            collider: Collider::ball(15.0),
-            collision_group: CollisionGroups::new(
-                CollisionMembership::PHYSICS,
-                CollisionMembership::PHYSICS,
-            ),
-            rigid_body: RigidBody::Dynamic,
+            physics_collision_bundle: PhysicsCollisionBundle::default()
+                .collider(Collider::ball(15.0))
+                .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
         .insert(Bomb)

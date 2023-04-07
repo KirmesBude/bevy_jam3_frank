@@ -1,11 +1,12 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, RigidBody, Velocity};
+use bevy_rapier2d::prelude::Velocity;
 
 use crate::{
+    collision::PhysicsCollisionBundle,
     player::Player,
-    stats::base::{BaseStatsBundle, Health, MovementSpeed},
+    stats::base::{BaseStatsBundle, MovementSpeed},
 };
 
 use self::bomb::spawn_bomb;
@@ -38,10 +39,7 @@ pub struct EnemyBundle {
     enemy: Enemy,
     sprite_bundle: SpriteBundle,
     base_stats_bundle: BaseStatsBundle,
-    velocity: Velocity,
-    rigid_body: RigidBody,
-    collider: Collider,
-    collision_group: CollisionGroups,
+    physics_collision_bundle: PhysicsCollisionBundle,
 }
 
 pub fn load_enemy_assets(asset_server: Res<AssetServer>, mut enemy_assets: ResMut<EnemyAssets>) {

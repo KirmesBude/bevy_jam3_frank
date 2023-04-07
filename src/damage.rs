@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::PhysicsSet;
 
 use crate::stats::base::Health;
 
