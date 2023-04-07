@@ -1,13 +1,8 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::Velocity;
 
-use crate::{
-    collision::PhysicsCollisionBundle,
-    player::Player,
-    stats::base::{BaseStatsBundle, MovementSpeed},
-};
+use crate::{collision::PhysicsCollisionBundle, player::Player, stats::base::BaseStatsBundle};
 
 use self::bomb::spawn_bomb;
 
@@ -21,8 +16,7 @@ impl Plugin for EnemyPlugin {
             .add_event::<SpawnEnemyEvent>()
             .add_startup_system(load_enemy_assets)
             .add_system(spawn_enemy_continiously)
-            .add_system(spawn_enemy.after(spawn_enemy_continiously))
-            .add_system(follow_player);
+            .add_system(spawn_enemy.after(spawn_enemy_continiously));
     }
 }
 
@@ -60,24 +54,16 @@ fn spawn_enemy(
     mut commands: Commands,
     mut spawn_enemy_events: EventReader<SpawnEnemyEvent>,
     enemy_assets: Res<EnemyAssets>,
+    players: Query<Entity, With<Player>>,
 ) {
-    for spawn_enemy_event in spawn_enemy_events.iter() {
-        let transform = spawn_enemy_event.transform;
-        match spawn_enemy_event.kind {
-            EnemyKind::Bomb => spawn_bomb(&mut commands, &enemy_assets, &transform),
-        }
-    }
-}
-
-fn follow_player(
-    mut enemy_query: Query<(&Transform, &MovementSpeed, &mut Velocity), With<Enemy>>,
-    player_query: Query<&Transform, With<Player>>,
-) {
-    if let Ok(player_transform) = player_query.get_single() {
-        for (enemy_transform, movement_speed, mut velocity) in enemy_query.iter_mut() {
-            let direction =
-                player_transform.translation.truncate() - enemy_transform.translation.truncate();
-            velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
+    if let Ok(player_entity) = players.get_single() {
+        for spawn_enemy_event in spawn_enemy_events.iter() {
+            let transform = spawn_enemy_event.transform;
+            match spawn_enemy_event.kind {
+                EnemyKind::Bomb => {
+                    spawn_bomb(&mut commands, &enemy_assets, &transform, &player_entity)
+                }
+            }
         }
     }
 }

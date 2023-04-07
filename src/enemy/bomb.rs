@@ -3,6 +3,7 @@ use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
     collision::{HitBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
+    movement::Follow,
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
@@ -11,7 +12,12 @@ use super::{EnemyAssets, EnemyBundle};
 #[derive(Debug, Default, Component)]
 pub struct Bomb;
 
-pub fn spawn_bomb(commands: &mut Commands, enemy_assets: &Res<EnemyAssets>, transform: &Transform) {
+pub fn spawn_bomb(
+    commands: &mut Commands,
+    enemy_assets: &Res<EnemyAssets>,
+    transform: &Transform,
+    player_entity: &Entity,
+) {
     let hit_box = commands
         .spawn((
             SpatialBundle::default(),
@@ -38,5 +44,8 @@ pub fn spawn_bomb(commands: &mut Commands, enemy_assets: &Res<EnemyAssets>, tran
             ..Default::default()
         })
         .insert(Bomb)
+        .insert(Follow {
+            entity: *player_entity,
+        })
         .add_child(hit_box);
 }

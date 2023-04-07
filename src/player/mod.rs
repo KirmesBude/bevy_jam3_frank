@@ -2,13 +2,14 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
+    camera::CameraCursor,
     collision::{HurtBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
-    movement::PositionLL,
+    movement::{LookAt, PositionLL, SyncPosition},
     side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
-use self::input::{look_at_cursor, move_player};
+use self::input::move_player;
 
 mod input;
 
@@ -18,9 +19,8 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerAssets>()
             .add_startup_system(load_player_assets)
-            .add_startup_system(spawn_player)
-            .add_system(move_player)
-            .add_system(look_at_cursor);
+            .add_startup_system(spawn_player.after(load_player_assets))
+            .add_system(move_player);
     }
 }
 
@@ -45,7 +45,12 @@ fn load_player_assets(asset_server: Res<AssetServer>, mut player_assets: ResMut<
     player_assets.sprite = asset_server.load("player.png");
 }
 
-fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
+pub fn spawn_player(
+    mut commands: Commands,
+    player_assets: Res<PlayerAssets>,
+    cameras: Query<Entity, With<Camera>>,
+    camera_cursors: Query<Entity, With<CameraCursor>>,
+) {
     let hurt_box = commands
         .spawn((
             SpatialBundle::default(),
@@ -54,8 +59,9 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
                 .memberships(MyCollisionGroups::PLAYER),
         ))
         .id();
+
     let transform = Transform::from_scale(Vec3::splat(3.0));
-    commands
+    let player_entity = commands
         .spawn(PlayerBundle {
             sprite_bundle: SpriteBundle {
                 texture: player_assets.sprite.clone_weak(),
@@ -75,5 +81,18 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerAssets>) {
                 .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
-        .add_child(hurt_box);
+        .add_child(hurt_box)
+        .id();
+
+    if let Ok(camera_entity) = cameras.get_single() {
+        commands.entity(camera_entity).insert(SyncPosition {
+            entity: player_entity,
+        });
+    }
+
+    if let Ok(camera_cursor_entity) = camera_cursors.get_single() {
+        commands.entity(player_entity).insert(LookAt {
+            entity: camera_cursor_entity,
+        });
+    }
 }
