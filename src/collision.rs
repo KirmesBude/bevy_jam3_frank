@@ -191,9 +191,15 @@ pub struct HitBehaviours {
 
 #[derive(Debug, Clone, Copy)]
 pub enum HitBehaviour {
-    Damage { amount: f32, kind: DamageKind },
-    Kill { fade_time: f32 },
-    KillSelf { fade_time: f32 },
+    Damage {
+        affect_self: bool,
+        amount: f32,
+        kind: DamageKind,
+    },
+    Kill {
+        affect_self: bool,
+        fade_time: f32,
+    },
 }
 
 pub struct HitEvent {
@@ -257,18 +263,38 @@ fn apply_hit_behaviour(
         if let Some(hit_behaviours) = &hit_event.hit_behaviours {
             for hit_behaviour in hit_behaviours.hit_behaviours.iter() {
                 match hit_behaviour {
-                    HitBehaviour::Damage { amount, kind } => new_damage_events.push(DamageEvent {
-                        source: hit_event.source,
-                        target: hit_event.target,
-                        amount: *amount,
-                        kind: *kind,
-                    }),
-                    HitBehaviour::Kill { fade_time } => new_kill_events.push(
-                        KillEvent::with_fade_time(hit_event.source, hit_event.target, *fade_time),
-                    ),
-                    HitBehaviour::KillSelf { fade_time } => new_kill_events.push(
-                        KillEvent::with_fade_time(hit_event.source, hit_event.source, *fade_time),
-                    ),
+                    HitBehaviour::Damage {
+                        affect_self,
+                        amount,
+                        kind,
+                    } => {
+                        let target = if *affect_self {
+                            hit_event.source
+                        } else {
+                            hit_event.target
+                        };
+                        new_damage_events.push(DamageEvent {
+                            source: hit_event.source,
+                            target,
+                            amount: *amount,
+                            kind: *kind,
+                        })
+                    }
+                    HitBehaviour::Kill {
+                        affect_self,
+                        fade_time,
+                    } => {
+                        let target = if *affect_self {
+                            hit_event.source
+                        } else {
+                            hit_event.target
+                        };
+                        new_kill_events.push(KillEvent::with_fade_time(
+                            hit_event.source,
+                            target,
+                            *fade_time,
+                        ))
+                    }
                 }
             }
         }

@@ -29,10 +29,14 @@ pub fn spawn_bomb(
         .insert(HitBehaviours {
             hit_behaviours: vec![
                 HitBehaviour::Damage {
+                    affect_self: false,
                     amount: 10.0,
                     kind: DamageKind::Lethal,
                 },
-                HitBehaviour::KillSelf { fade_time: 0.5 },
+                HitBehaviour::Kill {
+                    affect_self: true,
+                    fade_time: 0.5,
+                },
             ],
         })
         .id();
