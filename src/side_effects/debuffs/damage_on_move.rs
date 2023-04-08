@@ -5,6 +5,8 @@ use crate::{
     movement::{MovedEvent, PositionLL},
 };
 
+use super::dead::Dead;
+
 #[derive(Debug, Default, Bundle)]
 pub struct DamageOnMoveBundle {
     pub damage_on_move: DamageOnMove,
@@ -15,7 +17,7 @@ pub struct DamageOnMoveBundle {
 pub struct DamageOnMove(pub f32);
 
 pub fn create_damage_on_move(
-    query: Query<&DamageOnMove>,
+    query: Query<&DamageOnMove, Without<Dead>>,
     mut moved_events: EventReader<MovedEvent>,
     mut damage_events: EventWriter<DamageEvent>,
 ) {

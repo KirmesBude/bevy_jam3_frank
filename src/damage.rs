@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::stats::base::Health;
+use crate::{side_effects::debuffs::dead::Dead, stats::base::Health};
 
 pub struct DamagePlugin;
 
@@ -34,7 +34,7 @@ pub enum DamageKind {
 }
 
 fn apply_damage(
-    mut target_health_query: Query<&mut Health>,
+    mut target_health_query: Query<&mut Health, Without<Dead>>,
     mut damage_events: EventReader<DamageEvent>,
 ) {
     for damage_event in damage_events.iter() {
@@ -45,12 +45,10 @@ fn apply_damage(
                 DamageKind::Lethal => new_health.max(0.0),
             };
 
-            /*
             println!(
                 "{:?} received {} damage from {:?}. New health: {}!",
-                damage_event.source, damage_event.amount, damage_event.target, target_health.0
+                damage_event.target, damage_event.amount, damage_event.source, target_health.0
             );
-            */
         }
     }
 }

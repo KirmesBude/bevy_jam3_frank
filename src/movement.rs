@@ -3,7 +3,7 @@ use std::f32::consts::FRAC_PI_2;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Velocity;
 
-use crate::stats::base::MovementSpeed;
+use crate::{side_effects::debuffs::dead::Dead, stats::base::MovementSpeed};
 
 pub struct MovementPlugin;
 
@@ -31,7 +31,7 @@ impl PositionLL {
 
 fn send_moved_event_and_update_position_ll(
     mut moved_events: EventWriter<MovedEvent>,
-    mut query: Query<(Entity, &Transform, &mut PositionLL), Changed<Transform>>,
+    mut query: Query<(Entity, &Transform, &mut PositionLL), (Changed<Transform>, Without<Dead>)>,
 ) {
     for (entity, transform, mut position_ll) in query.iter_mut() {
         let distance = transform.translation.truncate().distance(position_ll.0);
@@ -50,7 +50,7 @@ pub struct LookAt {
 }
 
 pub fn look_at(
-    mut query: Query<(&mut Transform, &LookAt)>,
+    mut query: Query<(&mut Transform, &LookAt), Without<Dead>>,
     look_at_transforms: Query<&GlobalTransform>,
 ) {
     for (mut transform, look_at) in query.iter_mut() {
@@ -71,7 +71,7 @@ pub struct Follow {
 }
 
 pub fn follow(
-    mut query: Query<(&mut Velocity, &GlobalTransform, &MovementSpeed, &Follow)>,
+    mut query: Query<(&mut Velocity, &GlobalTransform, &MovementSpeed, &Follow), Without<Dead>>,
     follow_transforms: Query<&GlobalTransform>,
 ) {
     for (mut velocity, follower_transform, movement_speed, follow) in query.iter_mut() {
@@ -79,6 +79,8 @@ pub fn follow(
             let direction = follow_transform.translation().truncate()
                 - follower_transform.translation().truncate();
             velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
+        } else {
+            velocity.linvel = Vec2::ZERO;
         }
     }
 }
@@ -89,7 +91,7 @@ pub struct SyncPosition {
 }
 
 pub fn sync_position(
-    mut query: Query<(&mut Transform, &SyncPosition)>,
+    mut query: Query<(&mut Transform, &SyncPosition), Without<Dead>>,
     sync_transforms: Query<&GlobalTransform>,
 ) {
     for (mut syncer_transform, sync_position) in query.iter_mut() {

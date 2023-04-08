@@ -7,12 +7,15 @@ use bevy_rapier2d::{
     rapier::prelude::CollisionEventFlags,
 };
 
+use crate::side_effects::debuffs::dead::Dead;
+
 pub struct CollisionPlugin;
 
 impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_startup_system(rapier_setup)
+            .add_event::<HitEvent>()
             .add_system(hit_detection);
     }
 }
@@ -174,10 +177,17 @@ fn rapier_setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
 
+pub struct HitEvent {
+    pub source: Entity,
+    pub target: Entity,
+}
+
 fn hit_detection(
+    mut hit_events: EventWriter<HitEvent>,
     mut collision_events: EventReader<CollisionEvent>,
     hit_boxes: Query<&Parent, With<HitBox>>,
     hurt_boxes: Query<&Parent, With<HurtBox>>,
+    not_dead: Query<(), Without<Dead>>,
 ) {
     for collision_event in collision_events.iter() {
         match collision_event {
@@ -187,9 +197,19 @@ fn hit_detection(
                 for (maybe_hit, maybe_hurt) in [(entity_l, entity_r), (entity_r, entity_l)] {
                     if let Ok(hit_parent) = hit_boxes.get(*maybe_hit) {
                         if let Ok(hurt_parent) = hurt_boxes.get(*maybe_hurt) {
-                            println!("{:?} hit {:?}", hit_parent.get(), hurt_parent.get());
+                            if let (Ok(()), Ok(())) = (
+                                not_dead.get(hurt_parent.get()),
+                                not_dead.get(hit_parent.get()),
+                            ) {
+                                println!("{:?} hit {:?}", hit_parent.get(), hurt_parent.get());
+
+                                hit_events.send(HitEvent {
+                                    source: hit_parent.get(),
+                                    target: hurt_parent.get(),
+                                });
+                            }
                         }
-                    }   
+                    }
                 }
             }
             /*

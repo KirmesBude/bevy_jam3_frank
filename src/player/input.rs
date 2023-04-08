@@ -1,12 +1,15 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Velocity;
 
-use crate::stats::base::MovementSpeed;
+use crate::{side_effects::debuffs::dead::Dead, stats::base::MovementSpeed};
 
 use super::Player;
 
 pub fn move_player(
-    mut player_velocity_vector: Query<(&mut Velocity, &MovementSpeed), With<Player>>,
+    mut player_velocity_vector: Query<
+        (&mut Velocity, &MovementSpeed),
+        (With<Player>, Without<Dead>),
+    >,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
     if let Ok((mut player_velocity, movement_speed)) = player_velocity_vector.get_single_mut() {
