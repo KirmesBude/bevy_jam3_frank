@@ -3,7 +3,8 @@ use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
     collision::{
-        HitBehaviour, HitBehaviours, HitBoxBundle, MyCollisionGroups, PhysicsCollisionBundle,
+        HitBehaviour, HitBehaviours, HitBoxBundle, HurtBoxBundle, MyCollisionGroups,
+        PhysicsCollisionBundle,
     },
     damage::DamageKind,
     movement::Follow,
@@ -40,6 +41,13 @@ pub fn spawn_bomb(
             ],
         })
         .id();
+
+    let hurt_box = commands
+        .spawn((HurtBoxBundle::default()
+            .collider(Collider::ball(15.0))
+            .memberships(MyCollisionGroups::ENEMY),))
+        .id();
+
     commands
         .spawn(EnemyBundle {
             sprite_bundle: SpriteBundle {
@@ -60,5 +68,5 @@ pub fn spawn_bomb(
         .insert(Follow {
             entity: *player_entity,
         })
-        .add_child(hit_box);
+        .push_children(&[hit_box, hurt_box]);
 }
