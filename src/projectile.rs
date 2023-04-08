@@ -4,12 +4,18 @@ use bevy_rapier2d::prelude::{Collider, RigidBody, Velocity};
 use crate::{
     collision::{HitBehaviour, HitBehaviours, HitBoxBundle, MyCollisionGroups},
     damage::DamageKind,
+    movement::LookAt,
+    player::Player,
 };
 
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, app: &mut App) {
+        app.init_resource::<ProjectileAssets>()
+            .add_startup_system(load_projectile_assets)
+            .add_system(shoot);
+    }
 }
 
 #[derive(Default, Bundle)]
@@ -19,10 +25,53 @@ pub struct ProjectileBundle {
     velocity: Velocity,
 }
 
-pub fn spawn_projectile(
+#[derive(Resource, Default)]
+pub struct ProjectileAssets {
+    pill: Handle<Image>,
+}
+
+pub fn load_projectile_assets(
+    asset_server: Res<AssetServer>,
+    mut projectile_assets: ResMut<ProjectileAssets>,
+) {
+    projectile_assets.pill = asset_server.load("pill.png");
+}
+
+fn shoot(
     mut commands: Commands,
+    mouse_input: Res<Input<MouseButton>>,
+    player_query: Query<(&Transform, &LookAt), With<Player>>,
+    transforms: Query<&GlobalTransform>,
+    projectile_assets: ResMut<ProjectileAssets>,
+) {
+    if let Ok((player_transform, player_look_at)) = player_query.get_single() {
+        if mouse_input.just_pressed(MouseButton::Left) {
+            if let Ok(transform) = transforms.get(player_look_at.entity) {
+                let origin = player_transform;
+                let direction =
+                    transform.translation().truncate() - player_transform.translation.truncate();
+                let direction = direction.normalize();
+                let velocity = Velocity {
+                    linvel: direction * 100.0,
+                    ..Default::default()
+                };
+
+                spawn_projectile(
+                    &mut commands,
+                    10.0,
+                    origin,
+                    velocity,
+                    projectile_assets.pill.clone_weak(),
+                );
+            }
+        }
+    }
+}
+
+fn spawn_projectile(
+    commands: &mut Commands,
     radius: f32,
-    origin: Transform,
+    origin: &Transform,
     velocity: Velocity,
     image: Handle<Image>,
 ) {
@@ -51,7 +100,7 @@ pub fn spawn_projectile(
     commands
         .spawn(ProjectileBundle {
             sprite_bundle: SpriteBundle {
-                transform: origin,
+                transform: *origin,
                 texture: image,
                 ..Default::default()
             },

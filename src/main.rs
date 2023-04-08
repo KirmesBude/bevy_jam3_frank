@@ -16,6 +16,7 @@ use damage::DamagePlugin;
 use enemy::EnemyPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
+use projectile::ProjectilePlugin;
 use side_effects::SideEffectsPlugin;
 
 fn main() {
@@ -28,5 +29,6 @@ fn main() {
         .add_plugin(CameraPlugin)
         .add_plugin(SideEffectsPlugin)
         .add_plugin(EnemyPlugin)
+        .add_plugin(ProjectilePlugin)
         .run();
 }

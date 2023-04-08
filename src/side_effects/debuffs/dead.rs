@@ -33,14 +33,6 @@ pub struct KillEvent {
 }
 
 impl KillEvent {
-    pub fn instant(source: Entity, target: Entity) -> Self {
-        Self {
-            source,
-            target,
-            fade_time: 0.0,
-        }
-    }
-
     pub fn with_fade_time(source: Entity, target: Entity, fade_time: f32) -> Self {
         Self {
             source,

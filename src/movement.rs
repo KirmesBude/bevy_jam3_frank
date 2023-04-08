@@ -29,9 +29,11 @@ impl PositionLL {
     }
 }
 
+pub type PositionAndPositionLL<'a> = (Entity, &'a Transform, &'a mut PositionLL);
+
 fn send_moved_event_and_update_position_ll(
     mut moved_events: EventWriter<MovedEvent>,
-    mut query: Query<(Entity, &Transform, &mut PositionLL), (Changed<Transform>, Without<Dead>)>,
+    mut query: Query<PositionAndPositionLL, (Changed<Transform>, Without<Dead>)>,
 ) {
     for (entity, transform, mut position_ll) in query.iter_mut() {
         let distance = transform.translation.truncate().distance(position_ll.0);
@@ -71,11 +73,17 @@ pub struct Follow {
 }
 
 pub fn follow(
-    mut query: Query<(&mut Velocity, &GlobalTransform, &MovementSpeed, &Follow), Without<Dead>>,
+    mut query: Query<(
+        &mut Velocity,
+        &GlobalTransform,
+        &MovementSpeed,
+        &Follow,
+        Option<&Dead>,
+    )>,
     follow_transforms: Query<&GlobalTransform>,
 ) {
-    for (mut velocity, follower_transform, movement_speed, follow) in query.iter_mut() {
-        if let Ok(follow_transform) = follow_transforms.get(follow.entity) {
+    for (mut velocity, follower_transform, movement_speed, follow, maybe_dead) in query.iter_mut() {
+        if let (None, Ok(follow_transform)) = (maybe_dead, follow_transforms.get(follow.entity)) {
             let direction = follow_transform.translation().truncate()
                 - follower_transform.translation().truncate();
             velocity.linvel = direction.normalize_or_zero() * movement_speed.0;

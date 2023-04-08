@@ -29,14 +29,14 @@ pub struct CameraCursor {
 
 #[derive(Debug, Bundle)]
 pub struct CameraCursorBundle {
-    pub spatial_bundle: SpatialBundle,
+    pub transform_bundle: TransformBundle,
     pub camera_cursor: CameraCursor,
 }
 
 impl CameraCursorBundle {
     pub fn with_camera_cursot(camera_cursor: CameraCursor) -> Self {
         Self {
-            spatial_bundle: Default::default(),
+            transform_bundle: Default::default(),
             camera_cursor,
         }
     }
