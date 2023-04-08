@@ -13,7 +13,7 @@ impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_startup_system(rapier_setup)
-            .add_system(print_collision_events);
+            .add_system(hit_detection);
     }
 }
 
@@ -120,7 +120,7 @@ pub struct HurtBox;
 
 #[derive(Debug, Bundle)]
 pub struct HurtBoxBundle {
-    hurt_box: HitBox,
+    hurt_box: HurtBox,
     collider: Collider,
     sensor: Sensor,
     collision_groups: CollisionGroups,
@@ -174,23 +174,31 @@ fn rapier_setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
 
-fn print_collision_events(
+fn hit_detection(
     mut collision_events: EventReader<CollisionEvent>,
-    _hit_boxes: Query<&HitBox>,
-    _hurt_boxes: Query<&HurtBox>,
+    hit_boxes: Query<&Parent, With<HitBox>>,
+    hurt_boxes: Query<&Parent, With<HurtBox>>,
 ) {
     for collision_event in collision_events.iter() {
         match collision_event {
             CollisionEvent::Started(entity_l, entity_r, flags)
                 if flags.contains(CollisionEventFlags::SENSOR) =>
             {
-                println!("{:?} has started colliding with {:?}!", entity_l, entity_r)
+                for (maybe_hit, maybe_hurt) in [(entity_l, entity_r), (entity_r, entity_l)] {
+                    if let Ok(hit_parent) = hit_boxes.get(*maybe_hit) {
+                        if let Ok(hurt_parent) = hurt_boxes.get(*maybe_hurt) {
+                            println!("{:?} hit {:?}", hit_parent.get(), hurt_parent.get());
+                        }
+                    }   
+                }
             }
+            /*
             CollisionEvent::Stopped(entity_l, entity_r, flags)
                 if flags.contains(CollisionEventFlags::SENSOR) =>
             {
                 println!("{:?} has stoppde colliding with {:?}!", entity_l, entity_r)
             }
+            */
             _ => {}
         }
     }
