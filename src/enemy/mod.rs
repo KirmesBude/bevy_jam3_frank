@@ -2,12 +2,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{
-    collision::PhysicsCollisionBundle, damage::DamageSet, player::Player,
-    stats::base::BaseStatsBundle,
-};
+use crate::{collision::PhysicsCollisionBundle, player::Player, stats::base::BaseStatsBundle};
 
-use self::bomb::{bomb_hit_behaviour, spawn_bomb};
+use self::bomb::spawn_bomb;
 
 pub mod bomb;
 
@@ -19,8 +16,7 @@ impl Plugin for EnemyPlugin {
             .add_event::<SpawnEnemyEvent>()
             .add_startup_system(load_enemy_assets)
             .add_system(spawn_enemy_continiously)
-            .add_system(spawn_enemy.after(spawn_enemy_continiously))
-            .add_system(bomb_hit_behaviour.in_set(DamageSet::PreApply));
+            .add_system(spawn_enemy.after(spawn_enemy_continiously));
     }
 }
 

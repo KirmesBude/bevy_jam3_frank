@@ -2,8 +2,10 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
-    collision::{HitBoxBundle, HitEvent, MyCollisionGroups, PhysicsCollisionBundle},
-    damage::{DamageEvent, DamageKind},
+    collision::{
+        HitBehaviour, HitBehaviours, HitBoxBundle, MyCollisionGroups, PhysicsCollisionBundle,
+    },
+    damage::DamageKind,
     movement::Follow,
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
@@ -27,6 +29,15 @@ pub fn spawn_bomb(
                 .memberships(MyCollisionGroups::ENEMY)
                 .filters(MyCollisionGroups::PLAYER),
         ))
+        .insert(HitBehaviours {
+            hit_behaviours: vec![
+                HitBehaviour::Damage {
+                    amount: 10.0,
+                    kind: DamageKind::Lethal,
+                },
+                HitBehaviour::KillSelf { fade_time: 0.5 },
+            ],
+        })
         .id();
     commands
         .spawn(EnemyBundle {
@@ -49,29 +60,4 @@ pub fn spawn_bomb(
             entity: *player_entity,
         })
         .add_child(hit_box);
-}
-
-pub fn bomb_hit_behaviour(
-    mut hit_events: EventReader<HitEvent>,
-    mut damage_events: EventWriter<DamageEvent>,
-) {
-    for hit_event in hit_events.iter() {
-        /* Self implode */
-        let self_damage = DamageEvent {
-            source: hit_event.source,
-            target: hit_event.source,
-            amount: 9999.9,
-            kind: DamageKind::Lethal,
-        };
-
-        /* Damage the target */
-        let target_damage = DamageEvent {
-            source: hit_event.source,
-            target: hit_event.target,
-            amount: 5.0,
-            kind: DamageKind::Lethal,
-        };
-
-        damage_events.send_batch([self_damage, target_damage]);
-    }
 }

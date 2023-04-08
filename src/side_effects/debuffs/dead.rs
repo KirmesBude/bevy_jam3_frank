@@ -1,21 +1,14 @@
 use bevy::prelude::*;
 
-use crate::stats::base::Health;
-
-#[derive(Debug, Component)]
+#[derive(Debug, Default, Component)]
 pub struct Dead {
     fade_timer: Timer,
 }
 
-pub fn apply_dead_from_health(
-    mut commands: Commands,
-    query: Query<(Entity, &Health), Without<Dead>>,
-) {
-    for (entity, health) in query.iter() {
-        if health.0 <= 0.0 {
-            commands.entity(entity).insert(Dead {
-                fade_timer: Timer::from_seconds(2.0, TimerMode::Once),
-            });
+impl Dead {
+    pub fn with_fade_time(fade_time: f32) -> Self {
+        Self {
+            fade_timer: Timer::from_seconds(fade_time, TimerMode::Once),
         }
     }
 }
@@ -29,6 +22,49 @@ pub fn remove_dead_entities(
         if dead.fade_timer.tick(time.delta()).just_finished() {
             commands.entity(dead_entity).despawn_descendants();
             commands.entity(dead_entity).despawn();
+        }
+    }
+}
+
+pub struct KillEvent {
+    source: Entity,
+    target: Entity,
+    fade_time: f32,
+}
+
+impl KillEvent {
+    pub fn instant(source: Entity, target: Entity) -> Self {
+        Self {
+            source,
+            target,
+            fade_time: 0.0,
+        }
+    }
+
+    pub fn with_fade_time(source: Entity, target: Entity, fade_time: f32) -> Self {
+        Self {
+            source,
+            target,
+            fade_time,
+        }
+    }
+}
+
+pub fn apply_kill_event(
+    mut commands: Commands,
+    mut kill_events: EventReader<KillEvent>,
+    entities: Query<Entity>,
+) {
+    for kill_event in kill_events.iter() {
+        if let Ok(entity) = entities.get(kill_event.target) {
+            println!(
+                "{:?} killed {:?} with fade_time {}!",
+                kill_event.source, kill_event.target, kill_event.fade_time
+            );
+
+            commands
+                .entity(entity)
+                .insert(Dead::with_fade_time(kill_event.fade_time));
         }
     }
 }

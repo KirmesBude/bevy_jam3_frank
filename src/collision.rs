@@ -7,7 +7,10 @@ use bevy_rapier2d::{
     rapier::prelude::CollisionEventFlags,
 };
 
-use crate::side_effects::debuffs::dead::Dead;
+use crate::{
+    damage::{DamageEvent, DamageKind},
+    side_effects::debuffs::dead::{Dead, KillEvent},
+};
 
 pub struct CollisionPlugin;
 
@@ -16,7 +19,7 @@ impl Plugin for CollisionPlugin {
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_startup_system(rapier_setup)
             .add_event::<HitEvent>()
-            .add_system(hit_detection);
+            .add_systems((hit_detection, apply_hit_behaviour).chain());
     }
 }
 
@@ -177,15 +180,28 @@ fn rapier_setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
 
+#[derive(Debug, Clone, Component)]
+pub struct HitBehaviours {
+    pub hit_behaviours: Vec<HitBehaviour>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum HitBehaviour {
+    Damage { amount: f32, kind: DamageKind },
+    Kill { fade_time: f32 },
+    KillSelf { fade_time: f32 },
+}
+
 pub struct HitEvent {
     pub source: Entity,
     pub target: Entity,
+    pub hit_behaviours: Option<HitBehaviours>,
 }
 
 fn hit_detection(
     mut hit_events: EventWriter<HitEvent>,
     mut collision_events: EventReader<CollisionEvent>,
-    hit_boxes: Query<&Parent, With<HitBox>>,
+    hit_boxes: Query<(&Parent, Option<&HitBehaviours>), With<HitBox>>,
     hurt_boxes: Query<&Parent, With<HurtBox>>,
     not_dead: Query<(), Without<Dead>>,
 ) {
@@ -195,7 +211,7 @@ fn hit_detection(
                 if flags.contains(CollisionEventFlags::SENSOR) =>
             {
                 for (maybe_hit, maybe_hurt) in [(entity_l, entity_r), (entity_r, entity_l)] {
-                    if let Ok(hit_parent) = hit_boxes.get(*maybe_hit) {
+                    if let Ok((hit_parent, hit_behaviours)) = hit_boxes.get(*maybe_hit) {
                         if let Ok(hurt_parent) = hurt_boxes.get(*maybe_hurt) {
                             if let (Ok(()), Ok(())) = (
                                 not_dead.get(hurt_parent.get()),
@@ -206,6 +222,7 @@ fn hit_detection(
                                 hit_events.send(HitEvent {
                                     source: hit_parent.get(),
                                     target: hurt_parent.get(),
+                                    hit_behaviours: hit_behaviours.cloned(),
                                 });
                             }
                         }
@@ -222,4 +239,37 @@ fn hit_detection(
             _ => {}
         }
     }
+}
+
+fn apply_hit_behaviour(
+    mut hit_events: EventReader<HitEvent>,
+    mut damage_events: EventWriter<DamageEvent>,
+    mut kill_events: EventWriter<KillEvent>,
+) {
+    let mut new_damage_events = vec![];
+    let mut new_kill_events = vec![];
+
+    for hit_event in hit_events.iter() {
+        if let Some(hit_behaviours) = &hit_event.hit_behaviours {
+            for hit_behaviour in hit_behaviours.hit_behaviours.iter() {
+                match hit_behaviour {
+                    HitBehaviour::Damage { amount, kind } => new_damage_events.push(DamageEvent {
+                        source: hit_event.source,
+                        target: hit_event.target,
+                        amount: *amount,
+                        kind: *kind,
+                    }),
+                    HitBehaviour::Kill { fade_time } => new_kill_events.push(
+                        KillEvent::with_fade_time(hit_event.source, hit_event.target, *fade_time),
+                    ),
+                    HitBehaviour::KillSelf { fade_time } => new_kill_events.push(
+                        KillEvent::with_fade_time(hit_event.source, hit_event.source, *fade_time),
+                    ),
+                }
+            }
+        }
+    }
+
+    damage_events.send_batch(new_damage_events);
+    kill_events.send_batch(new_kill_events);
 }
