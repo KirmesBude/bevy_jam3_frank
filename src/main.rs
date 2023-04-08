@@ -6,6 +6,7 @@ mod damage;
 mod enemy;
 mod movement;
 mod player;
+mod projectile;
 mod side_effects;
 mod stats;
 
