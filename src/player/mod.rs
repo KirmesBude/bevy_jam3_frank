@@ -52,12 +52,9 @@ pub fn spawn_player(
     camera_cursors: Query<Entity, With<CameraCursor>>,
 ) {
     let hurt_box = commands
-        .spawn((
-            SpatialBundle::default(),
-            HurtBoxBundle::default()
-                .collider(Collider::ball(15.0))
-                .memberships(MyCollisionGroups::PLAYER),
-        ))
+        .spawn((HurtBoxBundle::default()
+            .collider(Collider::ball(15.0))
+            .memberships(MyCollisionGroups::PLAYER),))
         .id();
 
     let transform = Transform::from_scale(Vec3::splat(3.0));

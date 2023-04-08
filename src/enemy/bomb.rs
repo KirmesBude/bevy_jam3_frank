@@ -22,13 +22,10 @@ pub fn spawn_bomb(
     player_entity: &Entity,
 ) {
     let hit_box = commands
-        .spawn((
-            SpatialBundle::default(),
-            HitBoxBundle::default()
-                .collider(Collider::ball(15.0))
-                .memberships(MyCollisionGroups::ENEMY)
-                .filters(MyCollisionGroups::PLAYER),
-        ))
+        .spawn((HitBoxBundle::default()
+            .collider(Collider::ball(15.0))
+            .memberships(MyCollisionGroups::ENEMY)
+            .filters(MyCollisionGroups::PLAYER),))
         .insert(HitBehaviours {
             hit_behaviours: vec![
                 HitBehaviour::Damage {

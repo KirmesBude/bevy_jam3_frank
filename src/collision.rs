@@ -69,6 +69,7 @@ pub struct HitBox;
 #[derive(Debug, Bundle)]
 pub struct HitBoxBundle {
     hit_box: HitBox,
+    transform_bundle: TransformBundle,
     collider: Collider,
     sensor: Sensor,
     active_events: ActiveEvents,
@@ -79,6 +80,7 @@ impl Default for HitBoxBundle {
     fn default() -> Self {
         Self {
             hit_box: Default::default(),
+            transform_bundle: Default::default(),
             collider: Default::default(),
             sensor: Default::default(),
             active_events: ActiveEvents::COLLISION_EVENTS,
@@ -127,6 +129,7 @@ pub struct HurtBox;
 #[derive(Debug, Bundle)]
 pub struct HurtBoxBundle {
     hurt_box: HurtBox,
+    transform_bundle: TransformBundle,
     collider: Collider,
     sensor: Sensor,
     collision_groups: CollisionGroups,
@@ -136,6 +139,7 @@ impl Default for HurtBoxBundle {
     fn default() -> Self {
         Self {
             hurt_box: Default::default(),
+            transform_bundle: Default::default(),
             collider: Default::default(),
             sensor: Default::default(),
             collision_groups: CollisionGroups::new(
