@@ -6,7 +6,6 @@ use bevy_rapier2d::{
     },
     rapier::prelude::CollisionEventFlags,
 };
-use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
 use crate::{
     damage::{DamageEvent, DamageKind},
@@ -180,6 +179,8 @@ impl MyCollisionGroups {
     pub const PHYSICS: Group = Group::GROUP_1;
     pub const PLAYER: Group = Group::GROUP_2;
     pub const ENEMY: Group = Group::GROUP_3;
+    pub const PLAYER_PROJECTILE: Group = Group::GROUP_4;
+    pub const HEAL_DROP: Group = Group::GROUP_5;
 }
 
 fn rapier_setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -256,7 +257,6 @@ fn apply_hit_behaviour(
     mut damage_events: EventWriter<DamageEvent>,
     mut kill_events: EventWriter<KillEvent>,
     mut heal_events: EventWriter<HealEvent>,
-    mut animation_players: Query<&mut AnimationPlayer2D>,
 ) {
     let mut new_damage_events = vec![];
     let mut new_kill_events = vec![];

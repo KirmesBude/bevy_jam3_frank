@@ -64,7 +64,9 @@ fn apply_damage(
 
                 // "Flash" red
                 if let Some(mut flash_color) = maybe_flash_color {
-                    flash_color.color.set_r(3.0);
+                    let mut new_color = Color::default();
+                    new_color.set_r(3.0);
+                    flash_color.color = new_color;
                     flash_color.timer = Timer::from_seconds(0.2, TimerMode::Once);
                 }
 

@@ -5,6 +5,7 @@ use crate::{
     camera::CameraCursor,
     collision::{HurtBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
     damage::FlashColor,
+    heal::HealDropSearch,
     movement::{LookAt, PositionLL, SyncPosition},
     side_effects::debuffs::{
         damage_on_move::{DamageOnMove, DamageOnMoveBundle},
@@ -41,6 +42,7 @@ pub struct PlayerBundle {
     flash_color: FlashColor,
     kill_counter: KillCounter,
     attack_rate: AttackRate,
+    heal_drop_search: HealDropSearch,
 }
 
 #[derive(Debug, Default, Component)]
@@ -100,6 +102,7 @@ pub fn spawn_player(
                 rate: 0.4,
                 ..Default::default()
             },
+            heal_drop_search: HealDropSearch { radius: 200.0 },
             ..Default::default()
         })
         .insert(LockedAxes::ROTATION_LOCKED)

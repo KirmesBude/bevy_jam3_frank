@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
+use crate::heal::SpawnHealDropEvent;
+
 #[derive(Debug, Default, Component)]
 pub struct Dead {
     fade_timer: Timer,
@@ -95,17 +97,18 @@ pub enum KillBehaviour {
         affect_self: bool,
         animation_clip: Handle<AnimationClip2D>,
     },
+    SpawnHealDrop,
 }
 
 pub fn apply_kill_behaviour(
     mut kill_events: EventReader<KillEvent>,
     mut animation_players: Query<&mut AnimationPlayer2D>,
+    mut spawn_drop_events: EventWriter<SpawnHealDropEvent>,
     kill_behaviours: Query<&KillBehaviours>,
 ) {
     for kill_event in kill_events.iter() {
         if let Ok(kill_behaviours) = kill_behaviours.get(kill_event.target) {
             for kill_behaviour in kill_behaviours.kill_behaviours.iter() {
-                println!("lol");
                 match kill_behaviour {
                     KillBehaviour::PlayAnimation {
                         affect_self,
@@ -119,6 +122,11 @@ pub fn apply_kill_behaviour(
                         if let Ok(mut animation_player) = animation_players.get_mut(target) {
                             animation_player.play(animation_clip.clone_weak());
                         }
+                    }
+                    KillBehaviour::SpawnHealDrop => {
+                        spawn_drop_events.send(SpawnHealDropEvent {
+                            entity: kill_event.target,
+                        });
                     }
                 }
             }

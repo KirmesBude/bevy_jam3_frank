@@ -89,7 +89,7 @@ fn spawn_projectile(
         .spawn(
             HitBoxBundle::default()
                 .collider(Collider::ball(radius))
-                .memberships(MyCollisionGroups::PLAYER)
+                .memberships(MyCollisionGroups::PLAYER_PROJECTILE)
                 .filters(MyCollisionGroups::ENEMY),
         )
         .insert(HitBehaviours {

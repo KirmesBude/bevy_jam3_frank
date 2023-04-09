@@ -90,10 +90,13 @@ pub fn spawn_bomb(
             entity: *player_entity,
         })
         .insert(KillBehaviours {
-            kill_behaviours: vec![KillBehaviour::PlayAnimation {
-                affect_self: false,
-                animation_clip: enemy_assets.bomb.explode.clone_weak(),
-            }],
+            kill_behaviours: vec![
+                KillBehaviour::PlayAnimation {
+                    affect_self: false,
+                    animation_clip: enemy_assets.bomb.explode.clone_weak(),
+                },
+                KillBehaviour::SpawnHealDrop,
+            ],
         })
         .push_children(&[hit_box, hurt_box]);
 }
