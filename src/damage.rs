@@ -85,12 +85,22 @@ fn apply_damage(
     }
 }
 
-fn process_flash_color(time: Res<Time>, mut query: Query<(&mut FlashColor, &mut Sprite)>) {
-    for (mut flash_color, mut sprite) in query.iter_mut() {
+fn process_flash_color(
+    time: Res<Time>,
+    mut query: Query<(
+        &mut FlashColor,
+        AnyOf<(&mut Sprite, &mut TextureAtlasSprite)>,
+    )>,
+) {
+    for (mut flash_color, (maybe_sprite, maybe_texture_atlas_sprite)) in query.iter_mut() {
         if flash_color.timer.tick(time.delta()).just_finished() {
             flash_color.color = Color::default();
         }
 
-        sprite.color = flash_color.color;
+        if let Some(mut sprite) = maybe_sprite {
+            sprite.color = flash_color.color;
+        } else if let Some(mut texture_atlas_sprite) = maybe_texture_atlas_sprite {
+            texture_atlas_sprite.color = flash_color.color;
+        }
     }
 }

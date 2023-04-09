@@ -193,6 +193,7 @@ pub struct HitBehaviours {
 #[derive(Debug, Clone)]
 pub enum HitBehaviour {
     Damage {
+        override_source: Option<Entity>,
         affect_self: bool,
         amount: f32,
         kind: DamageKind,
@@ -263,6 +264,7 @@ fn apply_hit_behaviour(
             for hit_behaviour in hit_behaviours.hit_behaviours.iter() {
                 match hit_behaviour {
                     HitBehaviour::Damage {
+                        override_source,
                         affect_self,
                         amount,
                         kind,
@@ -272,8 +274,13 @@ fn apply_hit_behaviour(
                         } else {
                             hit_event.target
                         };
+                        let source = if let Some(source) = override_source {
+                            *source
+                        } else {
+                            hit_event.source
+                        };
                         new_damage_events.push(DamageEvent {
-                            source: hit_event.source,
+                            source,
                             target,
                             amount: *amount,
                             kind: *kind,

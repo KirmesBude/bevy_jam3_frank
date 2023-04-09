@@ -4,7 +4,7 @@ use crate::damage::DamageSet;
 
 use self::{
     damage_on_move::create_damage_on_move,
-    dead::{apply_kill_event, remove_dead_entities, KillEvent},
+    dead::{apply_kill_event, remove_dead_entities, update_kill_counter, KillEvent},
 };
 
 pub mod damage_on_move;
@@ -17,7 +17,7 @@ impl Plugin for DebuffPlugin {
         app.add_event::<KillEvent>()
             .add_system(create_damage_on_move.in_set(DamageSet::PreApply))
             .add_systems(
-                (apply_kill_event, remove_dead_entities)
+                (apply_kill_event, update_kill_counter, remove_dead_entities)
                     .chain()
                     .in_set(DamageSet::PostApply),
             );

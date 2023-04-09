@@ -37,6 +37,7 @@ pub fn spawn_bomb(
         .insert(HitBehaviours {
             hit_behaviours: vec![
                 HitBehaviour::Damage {
+                    override_source: None,
                     affect_self: false,
                     amount: 10.0,
                     kind: DamageKind::Lethal,

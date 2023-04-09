@@ -68,3 +68,17 @@ pub fn apply_kill_event(
         }
     }
 }
+
+#[derive(Debug, Default, Component)]
+pub struct KillCounter(pub usize);
+
+pub fn update_kill_counter(
+    mut kill_counters: Query<&mut KillCounter>,
+    mut kill_events: EventReader<KillEvent>,
+) {
+    for kill_event in kill_events.iter() {
+        if let Ok(mut kill_counter) = kill_counters.get_mut(kill_event.source) {
+            kill_counter.0 += 1;
+        }
+    }
+}

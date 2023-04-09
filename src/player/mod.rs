@@ -6,7 +6,10 @@ use crate::{
     collision::{HurtBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
     damage::FlashColor,
     movement::{LookAt, PositionLL, SyncPosition},
-    side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
+    side_effects::debuffs::{
+        damage_on_move::{DamageOnMove, DamageOnMoveBundle},
+        dead::KillCounter,
+    },
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
@@ -36,6 +39,7 @@ pub struct PlayerBundle {
     damage_on_move_bundle: DamageOnMoveBundle,
     physics_collision_bundle: PhysicsCollisionBundle,
     flash_color: FlashColor,
+    kill_counter: KillCounter,
 }
 
 #[derive(Resource, Default)]

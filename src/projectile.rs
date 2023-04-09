@@ -42,11 +42,11 @@ pub fn load_projectile_assets(
 fn shoot(
     mut commands: Commands,
     mouse_input: Res<Input<MouseButton>>,
-    player_query: Query<(&Transform, &LookAt), With<Player>>,
+    player_query: Query<(Entity, &Transform, &LookAt), With<Player>>,
     transforms: Query<&GlobalTransform>,
     projectile_assets: ResMut<ProjectileAssets>,
 ) {
-    if let Ok((player_transform, player_look_at)) = player_query.get_single() {
+    if let Ok((player_entity, player_transform, player_look_at)) = player_query.get_single() {
         if mouse_input.just_pressed(MouseButton::Left) {
             if let Ok(transform) = transforms.get(player_look_at.entity) {
                 let origin = player_transform;
@@ -64,6 +64,7 @@ fn shoot(
                     origin,
                     velocity,
                     projectile_assets.pill.clone_weak(),
+                    player_entity,
                 );
             }
         }
@@ -76,6 +77,7 @@ fn spawn_projectile(
     origin: &Transform,
     velocity: Velocity,
     image: Handle<Image>,
+    shooter_entity: Entity,
 ) {
     let hit_box = commands
         .spawn(
@@ -87,6 +89,7 @@ fn spawn_projectile(
         .insert(HitBehaviours {
             hit_behaviours: vec![
                 HitBehaviour::Damage {
+                    override_source: Some(shooter_entity),
                     affect_self: false,
                     amount: 10.0,
                     kind: DamageKind::Lethal,
