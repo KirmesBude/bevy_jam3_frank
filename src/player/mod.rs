@@ -79,8 +79,15 @@ pub fn spawn_player(
                 ..Default::default()
             },
             base_stats_bundle: BaseStatsBundle {
-                health: Health(100.0),
-                movement_speed: MovementSpeed(40.0),
+                health: Health {
+                    max: 100.0,
+                    current: 100.0,
+                },
+                movement_speed: MovementSpeed {
+                    max: 40.0,
+                    min: 5.0,
+                    ..Default::default()
+                },
             },
             damage_on_move_bundle: DamageOnMoveBundle {
                 damage_on_move: DamageOnMove(0.5),

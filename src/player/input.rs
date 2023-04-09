@@ -25,6 +25,6 @@ pub fn move_player(
             move_delta /= move_delta.length();
         }
 
-        player_velocity.linvel = move_delta * movement_speed.0;
+        player_velocity.linvel = move_delta * movement_speed.current;
     }
 }

@@ -68,8 +68,15 @@ pub fn spawn_bomb(
                 ..Default::default()
             },
             base_stats_bundle: BaseStatsBundle {
-                health: Health(50.0),
-                movement_speed: MovementSpeed(20.0),
+                health: Health {
+                    current: 50.0,
+                    max: 50.0,
+                },
+                movement_speed: MovementSpeed {
+                    max: 20.0,
+                    min: 10.0,
+                    ..Default::default()
+                },
             },
             physics_collision_bundle: PhysicsCollisionBundle::default()
                 .collider(Collider::ball(15.0))

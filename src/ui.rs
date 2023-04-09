@@ -67,8 +67,9 @@ fn update_health_ui(
 ) {
     if let Ok(health) = player_health.get_single() {
         for mut text in &mut query {
-            let value = health.0;
-            text.sections[1].value = format!("{value:.1}");
+            let current = health.current;
+            let max = health.max;
+            text.sections[1].value = format!("{current:.1}/{max:.0}");
         }
     }
 }

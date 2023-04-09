@@ -3,14 +3,17 @@ use std::f32::consts::FRAC_PI_2;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Velocity;
 
-use crate::{side_effects::debuffs::dead::Dead, stats::base::MovementSpeed};
+use crate::{
+    side_effects::debuffs::dead::Dead,
+    stats::base::{Health, MovementSpeed},
+};
 
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MovedEvent>()
-            .add_systems((look_at, follow, sync_position))
+            .add_systems((movement_speed_from_health, look_at, follow, sync_position))
             .add_system(send_moved_event_and_update_position_ll.in_base_set(CoreSet::PostUpdate));
     }
 }
@@ -86,7 +89,7 @@ pub fn follow(
         if let (None, Ok(follow_transform)) = (maybe_dead, follow_transforms.get(follow.entity)) {
             let direction = follow_transform.translation().truncate()
                 - follower_transform.translation().truncate();
-            velocity.linvel = direction.normalize_or_zero() * movement_speed.0;
+            velocity.linvel = direction.normalize_or_zero() * movement_speed.current;
         } else {
             velocity.linvel = Vec2::ZERO;
         }
@@ -107,5 +110,13 @@ pub fn sync_position(
             syncer_transform.translation.x = sync_transform.translation().x;
             syncer_transform.translation.y = sync_transform.translation().y;
         }
+    }
+}
+
+pub fn movement_speed_from_health(mut query: Query<(&Health, &mut MovementSpeed)>) {
+    for (health, mut movement_speed) in query.iter_mut() {
+        let factor = health.current / health.max;
+
+        movement_speed.current = (movement_speed.max * factor).max(movement_speed.min);
     }
 }

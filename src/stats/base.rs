@@ -7,13 +7,23 @@ pub struct BaseStatsBundle {
 }
 
 #[derive(Debug, Component)]
-pub struct Health(pub f32);
+pub struct Health {
+    pub current: f32,
+    pub max: f32,
+}
 
 impl Default for Health {
     fn default() -> Self {
-        Self(100.0)
+        Self {
+            current: 100.0,
+            max: 100.0,
+        }
     }
 }
 
 #[derive(Default, Debug, Component)]
-pub struct MovementSpeed(pub f32);
+pub struct MovementSpeed {
+    pub current: f32,
+    pub max: f32,
+    pub min: f32,
+}
