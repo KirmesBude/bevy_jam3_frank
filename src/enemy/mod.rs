@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{collision::PhysicsCollisionBundle, player::Player, stats::base::BaseStatsBundle};
+use crate::{
+    collision::PhysicsCollisionBundle, damage::FlashColor, player::Player,
+    stats::base::BaseStatsBundle,
+};
 
 use self::bomb::spawn_bomb;
 
@@ -34,6 +37,7 @@ pub struct EnemyBundle {
     sprite_bundle: SpriteBundle,
     base_stats_bundle: BaseStatsBundle,
     physics_collision_bundle: PhysicsCollisionBundle,
+    flash_color: FlashColor,
 }
 
 pub fn load_enemy_assets(asset_server: Res<AssetServer>, mut enemy_assets: ResMut<EnemyAssets>) {

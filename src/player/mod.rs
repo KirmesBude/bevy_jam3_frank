@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::{Collider, RigidBody};
 use crate::{
     camera::CameraCursor,
     collision::{HurtBoxBundle, MyCollisionGroups, PhysicsCollisionBundle},
+    damage::FlashColor,
     movement::{LookAt, PositionLL, SyncPosition},
     side_effects::debuffs::damage_on_move::{DamageOnMove, DamageOnMoveBundle},
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
@@ -34,6 +35,7 @@ pub struct PlayerBundle {
     base_stats_bundle: BaseStatsBundle,
     damage_on_move_bundle: DamageOnMoveBundle,
     physics_collision_bundle: PhysicsCollisionBundle,
+    flash_color: FlashColor,
 }
 
 #[derive(Resource, Default)]
