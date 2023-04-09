@@ -11,6 +11,8 @@ mod side_effects;
 mod stats;
 mod ui;
 
+use bevy_titan::SpriteSheetLoaderPlugin;
+use bevy_trickfilm::Animation2DPlugin;
 use camera::CameraPlugin;
 use collision::CollisionPlugin;
 use damage::DamagePlugin;
@@ -25,6 +27,8 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(1.0, 1.0, 1.0)))
         .add_plugins(DefaultPlugins)
+        .add_plugin(SpriteSheetLoaderPlugin)
+        .add_plugin(Animation2DPlugin)
         .add_plugin(CollisionPlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(PlayerPlugin)

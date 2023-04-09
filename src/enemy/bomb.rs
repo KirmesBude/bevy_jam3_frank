@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, LockedAxes, RigidBody};
+use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
 use crate::{
     collision::{
@@ -15,6 +16,12 @@ use super::{EnemyAssets, EnemyBundle};
 
 #[derive(Debug, Default, Component)]
 pub struct Bomb;
+
+#[derive(Debug, Default)]
+pub struct BombAnimations {
+    pub idle: Handle<AnimationClip2D>,
+    pub explode: Handle<AnimationClip2D>,
+}
 
 pub fn spawn_bomb(
     commands: &mut Commands,
@@ -38,6 +45,10 @@ pub fn spawn_bomb(
                     affect_self: true,
                     fade_time: 0.5,
                 },
+                HitBehaviour::PlayAnimation {
+                    affect_self: true,
+                    animation_clip: enemy_assets.bomb.explode.clone_weak(),
+                },
             ],
         })
         .id();
@@ -48,11 +59,14 @@ pub fn spawn_bomb(
             .memberships(MyCollisionGroups::ENEMY),))
         .id();
 
+    let mut animation_player = AnimationPlayer2D::default();
+    animation_player.start(enemy_assets.bomb.idle.clone_weak());
+    let animation_player = animation_player;
+
     commands
         .spawn(EnemyBundle {
-            sprite_bundle: SpriteBundle {
+            sprite_sheet_bundle: SpriteSheetBundle {
                 transform: transform.with_scale(Vec3::splat(2.0)),
-                texture: enemy_assets.bomb.clone_weak(),
                 ..Default::default()
             },
             base_stats_bundle: BaseStatsBundle {
@@ -64,6 +78,7 @@ pub fn spawn_bomb(
                 .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
+        .insert(animation_player)
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Bomb)
         .insert(Follow {

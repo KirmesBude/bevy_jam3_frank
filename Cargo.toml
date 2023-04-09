@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 bevy = "0.10"
 bevy_rapier2d = "0.21"
+bevy_trickfilm = "0.2"
+bevy_titan = "0.2"

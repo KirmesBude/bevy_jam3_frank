@@ -55,29 +55,31 @@ fn apply_damage(
         if let Ok((mut target_health, maybe_flash_color)) =
             target_health_query.get_mut(damage_event.target)
         {
-            let new_health = target_health.0 - damage_event.amount;
-            target_health.0 = match damage_event.kind {
-                DamageKind::NonLethal => new_health.max(1.0),
-                DamageKind::Lethal => new_health.max(0.0),
-            };
+            if target_health.0 > 0.0 {
+                let new_health = target_health.0 - damage_event.amount;
+                target_health.0 = match damage_event.kind {
+                    DamageKind::NonLethal => new_health.max(1.0),
+                    DamageKind::Lethal => new_health.max(0.0),
+                };
 
-            // "Flash" red
-            if let Some(mut flash_color) = maybe_flash_color {
-                flash_color.color.set_r(3.0);
-                flash_color.timer = Timer::from_seconds(0.2, TimerMode::Once);
-            }
+                // "Flash" red
+                if let Some(mut flash_color) = maybe_flash_color {
+                    flash_color.color.set_r(3.0);
+                    flash_color.timer = Timer::from_seconds(0.2, TimerMode::Once);
+                }
 
-            println!(
-                "{:?} received {} damage from {:?}. New health: {}!",
-                damage_event.target, damage_event.amount, damage_event.source, target_health.0
-            );
+                println!(
+                    "{:?} received {} damage from {:?}. New health: {}!",
+                    damage_event.target, damage_event.amount, damage_event.source, target_health.0
+                );
 
-            if new_health <= 0.0 {
-                kill_events.send(KillEvent::with_fade_time(
-                    damage_event.source,
-                    damage_event.target,
-                    2.0,
-                ));
+                if new_health <= 0.0 {
+                    kill_events.send(KillEvent::with_fade_time(
+                        damage_event.source,
+                        damage_event.target,
+                        2.0,
+                    ));
+                }
             }
         }
     }

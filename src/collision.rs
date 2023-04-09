@@ -6,6 +6,7 @@ use bevy_rapier2d::{
     },
     rapier::prelude::CollisionEventFlags,
 };
+use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
 use crate::{
     damage::{DamageEvent, DamageKind},
@@ -189,7 +190,7 @@ pub struct HitBehaviours {
     pub hit_behaviours: Vec<HitBehaviour>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum HitBehaviour {
     Damage {
         affect_self: bool,
@@ -199,6 +200,10 @@ pub enum HitBehaviour {
     Kill {
         affect_self: bool,
         fade_time: f32,
+    },
+    PlayAnimation {
+        affect_self: bool,
+        animation_clip: Handle<AnimationClip2D>,
     },
 }
 
@@ -239,13 +244,6 @@ fn hit_detection(
                     }
                 }
             }
-            /*
-            CollisionEvent::Stopped(entity_l, entity_r, flags)
-                if flags.contains(CollisionEventFlags::SENSOR) =>
-            {
-                println!("{:?} has stoppde colliding with {:?}!", entity_l, entity_r)
-            }
-            */
             _ => {}
         }
     }
@@ -255,6 +253,7 @@ fn apply_hit_behaviour(
     mut hit_events: EventReader<HitEvent>,
     mut damage_events: EventWriter<DamageEvent>,
     mut kill_events: EventWriter<KillEvent>,
+    mut animation_players: Query<&mut AnimationPlayer2D>,
 ) {
     let mut new_damage_events = vec![];
     let mut new_kill_events = vec![];
@@ -294,6 +293,19 @@ fn apply_hit_behaviour(
                             target,
                             *fade_time,
                         ))
+                    }
+                    HitBehaviour::PlayAnimation {
+                        affect_self,
+                        animation_clip,
+                    } => {
+                        let target = if *affect_self {
+                            hit_event.source
+                        } else {
+                            hit_event.target
+                        };
+                        if let Ok(mut animation_player) = animation_players.get_mut(target) {
+                            animation_player.play(animation_clip.clone_weak());
+                        }
                     }
                 }
             }

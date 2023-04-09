@@ -1,0 +1,9 @@
+(
+    path: "enemy_bomb.png",
+    tile_size: (
+        w: 32.0,
+        h: 32.0,
+    ),
+    columns: 4,
+    rows: 1,
+)

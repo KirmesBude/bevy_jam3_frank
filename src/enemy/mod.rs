@@ -7,7 +7,7 @@ use crate::{
     stats::base::BaseStatsBundle,
 };
 
-use self::bomb::spawn_bomb;
+use self::bomb::{spawn_bomb, BombAnimations};
 
 pub mod bomb;
 
@@ -28,20 +28,23 @@ struct Enemy;
 
 #[derive(Resource, Default)]
 pub struct EnemyAssets {
-    bomb: Handle<Image>,
+    bomb: BombAnimations,
 }
 
 #[derive(Default, Bundle)]
 pub struct EnemyBundle {
     enemy: Enemy,
-    sprite_bundle: SpriteBundle,
+    sprite_sheet_bundle: SpriteSheetBundle,
     base_stats_bundle: BaseStatsBundle,
     physics_collision_bundle: PhysicsCollisionBundle,
     flash_color: FlashColor,
 }
 
 pub fn load_enemy_assets(asset_server: Res<AssetServer>, mut enemy_assets: ResMut<EnemyAssets>) {
-    enemy_assets.bomb = asset_server.load("enemy_bomb.png");
+    enemy_assets.bomb = BombAnimations {
+        idle: asset_server.load("enemy_bomb.trickfilm#idle"),
+        explode: asset_server.load("enemy_bomb.trickfilm#explode"),
+    };
 }
 
 pub enum EnemyKind {
