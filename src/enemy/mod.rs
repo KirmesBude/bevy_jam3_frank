@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{f32::consts::PI, time::Duration};
 
 use bevy::prelude::*;
 
@@ -90,11 +90,20 @@ fn spawn_enemy_continiously(
     time: Res<Time>,
     mut timer: Local<EnemySpawnTimer>,
     mut spawn_enemy_events: EventWriter<SpawnEnemyEvent>,
+    player_transform: Query<&GlobalTransform, With<Player>>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
-        spawn_enemy_events.send(SpawnEnemyEvent {
-            kind: EnemyKind::Bomb,
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-        });
+        if let Ok(player_transform) = player_transform.get_single() {
+            let radius = 300.0;
+            let random_angle = time.elapsed_seconds() % (2.0 * PI);
+            let (x, y) = (
+                player_transform.translation().x + radius * random_angle.cos(),
+                player_transform.translation().y + radius * random_angle.sin(),
+            );
+            spawn_enemy_events.send(SpawnEnemyEvent {
+                kind: EnemyKind::Bomb,
+                transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
+            });
+        }
     }
 }
