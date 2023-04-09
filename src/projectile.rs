@@ -6,6 +6,7 @@ use crate::{
     damage::DamageKind,
     movement::LookAt,
     player::Player,
+    side_effects::debuffs::dead::KillEvent,
 };
 
 pub struct ProjectilePlugin;
@@ -14,7 +15,8 @@ impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ProjectileAssets>()
             .add_startup_system(load_projectile_assets)
-            .add_system(shoot);
+            .add_system(shoot)
+            .add_system(projectile_lifetime);
     }
 }
 
@@ -107,5 +109,25 @@ fn spawn_projectile(
             rigid_body: RigidBody::Dynamic,
             velocity,
         })
+        .insert(Lifetime {
+            timer: Timer::from_seconds(10.0, TimerMode::Once),
+        })
         .add_child(hit_box);
+}
+
+#[derive(Debug, Default, Component)]
+pub struct Lifetime {
+    timer: Timer,
+}
+
+fn projectile_lifetime(
+    time: Res<Time>,
+    mut lifetimes: Query<(Entity, &mut Lifetime)>,
+    mut kill_events: EventWriter<KillEvent>,
+) {
+    for (entity, mut lifetime) in lifetimes.iter_mut() {
+        if lifetime.timer.tick(time.delta()).just_finished() {
+            kill_events.send(KillEvent::instant(entity, entity));
+        }
+    }
 }

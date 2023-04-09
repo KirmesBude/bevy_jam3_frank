@@ -40,6 +40,14 @@ impl KillEvent {
             fade_time,
         }
     }
+
+    pub fn instant(source: Entity, target: Entity) -> Self {
+        Self {
+            source,
+            target,
+            fade_time: 0.0,
+        }
+    }
 }
 
 pub fn apply_kill_event(
