@@ -77,7 +77,7 @@ fn apply_damage(
                     kill_events.send(KillEvent::with_fade_time(
                         damage_event.source,
                         damage_event.target,
-                        2.0,
+                        1.0,
                     ));
                 }
             }

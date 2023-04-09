@@ -9,6 +9,7 @@ use crate::{
     },
     damage::DamageKind,
     movement::Follow,
+    side_effects::debuffs::dead::{KillBehaviour, KillBehaviours},
     stats::base::{BaseStatsBundle, Health, MovementSpeed},
 };
 
@@ -46,10 +47,6 @@ pub fn spawn_bomb(
                     affect_self: true,
                     fade_time: 0.5,
                 },
-                HitBehaviour::PlayAnimation {
-                    affect_self: true,
-                    animation_clip: enemy_assets.bomb.explode.clone_weak(),
-                },
             ],
         })
         .id();
@@ -84,6 +81,12 @@ pub fn spawn_bomb(
         .insert(Bomb)
         .insert(Follow {
             entity: *player_entity,
+        })
+        .insert(KillBehaviours {
+            kill_behaviours: vec![KillBehaviour::PlayAnimation {
+                affect_self: false,
+                animation_clip: enemy_assets.bomb.explode.clone_weak(),
+            }],
         })
         .push_children(&[hit_box, hurt_box]);
 }

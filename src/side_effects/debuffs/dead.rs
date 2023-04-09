@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
 #[derive(Debug, Default, Component)]
 pub struct Dead {
@@ -79,6 +80,48 @@ pub fn update_kill_counter(
     for kill_event in kill_events.iter() {
         if let Ok(mut kill_counter) = kill_counters.get_mut(kill_event.source) {
             kill_counter.0 += 1;
+        }
+    }
+}
+
+#[derive(Debug, Clone, Component)]
+pub struct KillBehaviours {
+    pub kill_behaviours: Vec<KillBehaviour>,
+}
+
+#[derive(Debug, Clone)]
+pub enum KillBehaviour {
+    PlayAnimation {
+        affect_self: bool,
+        animation_clip: Handle<AnimationClip2D>,
+    },
+}
+
+pub fn apply_kill_behaviour(
+    mut kill_events: EventReader<KillEvent>,
+    mut animation_players: Query<&mut AnimationPlayer2D>,
+    kill_behaviours: Query<&KillBehaviours>,
+) {
+    for kill_event in kill_events.iter() {
+        if let Ok(kill_behaviours) = kill_behaviours.get(kill_event.target) {
+            for kill_behaviour in kill_behaviours.kill_behaviours.iter() {
+                println!("lol");
+                match kill_behaviour {
+                    KillBehaviour::PlayAnimation {
+                        affect_self,
+                        animation_clip,
+                    } => {
+                        let target = if *affect_self {
+                            kill_event.source
+                        } else {
+                            kill_event.target
+                        };
+                        if let Ok(mut animation_player) = animation_players.get_mut(target) {
+                            animation_player.play(animation_clip.clone_weak());
+                        }
+                    }
+                }
+            }
         }
     }
 }
