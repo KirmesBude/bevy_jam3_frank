@@ -5,7 +5,7 @@ use crate::{
     collision::{HitBehaviour, HitBehaviours, HitBoxBundle, MyCollisionGroups},
     damage::DamageKind,
     movement::LookAt,
-    player::Player,
+    player::{AttackRate, Player},
     side_effects::debuffs::dead::KillEvent,
 };
 
@@ -41,13 +41,17 @@ pub fn load_projectile_assets(
 
 fn shoot(
     mut commands: Commands,
+    time: Res<Time>,
     mouse_input: Res<Input<MouseButton>>,
-    player_query: Query<(Entity, &Transform, &LookAt), With<Player>>,
+    mut player_query: Query<(Entity, &mut AttackRate, &Transform, &LookAt), With<Player>>,
     transforms: Query<&GlobalTransform>,
     projectile_assets: ResMut<ProjectileAssets>,
 ) {
-    if let Ok((player_entity, player_transform, player_look_at)) = player_query.get_single() {
-        if mouse_input.just_pressed(MouseButton::Left) {
+    if let Ok((player_entity, mut attack_rate, player_transform, player_look_at)) =
+        player_query.get_single_mut()
+    {
+        if attack_rate.timer.tick(time.delta()).finished() && mouse_input.pressed(MouseButton::Left)
+        {
             if let Ok(transform) = transforms.get(player_look_at.entity) {
                 let origin = player_transform;
                 let direction =
@@ -67,6 +71,8 @@ fn shoot(
                     player_entity,
                 );
             }
+
+            attack_rate.timer = Timer::from_seconds(attack_rate.rate, TimerMode::Once);
         }
     }
 }

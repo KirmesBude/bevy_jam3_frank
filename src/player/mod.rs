@@ -40,6 +40,13 @@ pub struct PlayerBundle {
     physics_collision_bundle: PhysicsCollisionBundle,
     flash_color: FlashColor,
     kill_counter: KillCounter,
+    attack_rate: AttackRate,
+}
+
+#[derive(Debug, Default, Component)]
+pub struct AttackRate {
+    pub rate: f32,
+    pub timer: Timer,
 }
 
 #[derive(Resource, Default)]
@@ -82,6 +89,10 @@ pub fn spawn_player(
             physics_collision_bundle: PhysicsCollisionBundle::default()
                 .collider(Collider::ball(15.0))
                 .rigid_body(RigidBody::Dynamic),
+            attack_rate: AttackRate {
+                rate: 0.4,
+                ..Default::default()
+            },
             ..Default::default()
         })
         .insert(LockedAxes::ROTATION_LOCKED)
