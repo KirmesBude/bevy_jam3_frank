@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, RigidBody};
+use bevy_rapier2d::prelude::{Collider, LockedAxes, RigidBody};
 
 use crate::{
     collision::{
@@ -64,6 +64,7 @@ pub fn spawn_bomb(
                 .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
+        .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Bomb)
         .insert(Follow {
             entity: *player_entity,

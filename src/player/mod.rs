@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, RigidBody};
+use bevy_rapier2d::prelude::{Collider, LockedAxes, RigidBody};
 
 use crate::{
     camera::CameraCursor,
@@ -80,6 +80,7 @@ pub fn spawn_player(
                 .rigid_body(RigidBody::Dynamic),
             ..Default::default()
         })
+        .insert(LockedAxes::ROTATION_LOCKED)
         .add_child(hurt_box)
         .id();
 

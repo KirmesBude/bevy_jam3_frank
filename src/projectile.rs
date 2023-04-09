@@ -53,7 +53,7 @@ fn shoot(
                 let direction = direction.normalize();
                 let velocity = Velocity {
                     linvel: direction * 100.0,
-                    ..Default::default()
+                    angvel: 15.0,
                 };
 
                 spawn_projectile(
