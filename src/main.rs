@@ -4,6 +4,7 @@ mod camera;
 mod collision;
 mod damage;
 mod enemy;
+mod heal;
 mod movement;
 mod player;
 mod projectile;
@@ -17,6 +18,7 @@ use camera::CameraPlugin;
 use collision::CollisionPlugin;
 use damage::DamagePlugin;
 use enemy::EnemyPlugin;
+use heal::HealPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use projectile::ProjectilePlugin;
@@ -38,5 +40,6 @@ fn main() {
         .add_plugin(EnemyPlugin)
         .add_plugin(ProjectilePlugin)
         .add_plugin(UiPlugin)
+        .add_plugin(HealPlugin)
         .run();
 }

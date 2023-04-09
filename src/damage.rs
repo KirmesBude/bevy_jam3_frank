@@ -42,8 +42,8 @@ pub enum DamageKind {
 
 #[derive(Debug, Default, Component)]
 pub struct FlashColor {
-    color: Color,
-    timer: Timer,
+    pub color: Color,
+    pub timer: Timer,
 }
 
 fn apply_damage(

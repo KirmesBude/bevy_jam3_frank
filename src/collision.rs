@@ -10,6 +10,7 @@ use bevy_trickfilm::prelude::{AnimationClip2D, AnimationPlayer2D};
 
 use crate::{
     damage::{DamageEvent, DamageKind},
+    heal::HealEvent,
     side_effects::debuffs::dead::{Dead, KillEvent},
 };
 
@@ -202,9 +203,9 @@ pub enum HitBehaviour {
         affect_self: bool,
         fade_time: f32,
     },
-    PlayAnimation {
+    Heal {
         affect_self: bool,
-        animation_clip: Handle<AnimationClip2D>,
+        amount: f32,
     },
 }
 
@@ -254,10 +255,12 @@ fn apply_hit_behaviour(
     mut hit_events: EventReader<HitEvent>,
     mut damage_events: EventWriter<DamageEvent>,
     mut kill_events: EventWriter<KillEvent>,
+    mut heal_events: EventWriter<HealEvent>,
     mut animation_players: Query<&mut AnimationPlayer2D>,
 ) {
     let mut new_damage_events = vec![];
     let mut new_kill_events = vec![];
+    let mut new_heal_events = vec![];
 
     for hit_event in hit_events.iter() {
         if let Some(hit_behaviours) = &hit_event.hit_behaviours {
@@ -301,18 +304,20 @@ fn apply_hit_behaviour(
                             *fade_time,
                         ))
                     }
-                    HitBehaviour::PlayAnimation {
+                    HitBehaviour::Heal {
                         affect_self,
-                        animation_clip,
+                        amount,
                     } => {
                         let target = if *affect_self {
                             hit_event.source
                         } else {
                             hit_event.target
                         };
-                        if let Ok(mut animation_player) = animation_players.get_mut(target) {
-                            animation_player.play(animation_clip.clone_weak());
-                        }
+                        new_heal_events.push(HealEvent {
+                            source: hit_event.source,
+                            target,
+                            amount: *amount,
+                        })
                     }
                 }
             }
@@ -321,4 +326,5 @@ fn apply_hit_behaviour(
 
     damage_events.send_batch(new_damage_events);
     kill_events.send_batch(new_kill_events);
+    heal_events.send_batch(new_heal_events);
 }

@@ -80,7 +80,7 @@ struct EnemySpawnTimer(Timer);
 impl Default for EnemySpawnTimer {
     fn default() -> Self {
         Self(Timer::new(
-            Duration::from_secs_f32(10.0),
+            Duration::from_secs_f32(5.0),
             TimerMode::Repeating,
         ))
     }
