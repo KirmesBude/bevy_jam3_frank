@@ -58,6 +58,7 @@ pub struct SpawnEnemyEvent {
 }
 
 fn spawn_enemy(
+    time: Res<Time>,
     mut commands: Commands,
     mut spawn_enemy_events: EventReader<SpawnEnemyEvent>,
     enemy_assets: Res<EnemyAssets>,
@@ -67,9 +68,13 @@ fn spawn_enemy(
         for spawn_enemy_event in spawn_enemy_events.iter() {
             let transform = spawn_enemy_event.transform;
             match spawn_enemy_event.kind {
-                EnemyKind::Bomb => {
-                    spawn_bomb(&mut commands, &enemy_assets, &transform, &player_entity)
-                }
+                EnemyKind::Bomb => spawn_bomb(
+                    &time,
+                    &mut commands,
+                    &enemy_assets,
+                    &transform,
+                    &player_entity,
+                ),
             }
         }
     }
@@ -80,7 +85,7 @@ struct EnemySpawnTimer(Timer);
 impl Default for EnemySpawnTimer {
     fn default() -> Self {
         Self(Timer::new(
-            Duration::from_secs_f32(5.0),
+            Duration::from_secs_f32(3.0),
             TimerMode::Repeating,
         ))
     }

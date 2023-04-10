@@ -115,7 +115,7 @@ pub fn sync_position(
 
 pub fn movement_speed_from_health(mut query: Query<(&Health, &mut MovementSpeed)>) {
     for (health, mut movement_speed) in query.iter_mut() {
-        let factor = health.current / health.max;
+        let factor = (health.current - 1.0) / health.max;
 
         movement_speed.current = (movement_speed.max * factor).max(movement_speed.min);
     }

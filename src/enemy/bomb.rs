@@ -25,6 +25,7 @@ pub struct BombAnimations {
 }
 
 pub fn spawn_bomb(
+    time: &Res<Time>,
     commands: &mut Commands,
     enemy_assets: &Res<EnemyAssets>,
     transform: &Transform,
@@ -60,7 +61,7 @@ pub fn spawn_bomb(
     let mut animation_player = AnimationPlayer2D::default();
     animation_player.start(enemy_assets.bomb.idle.clone_weak());
     let animation_player = animation_player;
-
+    let health = 30.0 + (((time.elapsed_seconds() / 30.0).floor() + 1.0) * 20.0);
     commands
         .spawn(EnemyBundle {
             sprite_sheet_bundle: SpriteSheetBundle {
@@ -69,8 +70,8 @@ pub fn spawn_bomb(
             },
             base_stats_bundle: BaseStatsBundle {
                 health: Health {
-                    current: 50.0,
-                    max: 50.0,
+                    current: health,
+                    max: health,
                 },
                 movement_speed: MovementSpeed {
                     max: 20.0,
