@@ -40,7 +40,7 @@ pub fn spawn_bomb(
                 HitBehaviour::Damage {
                     override_source: None,
                     affect_self: false,
-                    amount: 10.0,
+                    amount: 20.0,
                     kind: DamageKind::Lethal,
                 },
                 HitBehaviour::Kill {
@@ -53,7 +53,7 @@ pub fn spawn_bomb(
 
     let hurt_box = commands
         .spawn((HurtBoxBundle::default()
-            .collider(Collider::ball(15.0))
+            .collider(Collider::ball(10.0))
             .memberships(MyCollisionGroups::ENEMY),))
         .id();
 

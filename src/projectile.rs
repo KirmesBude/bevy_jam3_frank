@@ -64,7 +64,7 @@ fn shoot(
 
                 spawn_projectile(
                     &mut commands,
-                    10.0,
+                    4.0,
                     origin,
                     velocity,
                     projectile_assets.pill.clone_weak(),

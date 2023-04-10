@@ -119,7 +119,7 @@ fn spawn_heal_drops(
         if let Ok(transform) = transforms.get(event.entity) {
             let hit_box = commands
                 .spawn((HitBoxBundle::default()
-                    .collider(Collider::ball(10.0))
+                    .collider(Collider::ball(2.0))
                     .memberships(MyCollisionGroups::HEAL_DROP)
                     .filters(MyCollisionGroups::PLAYER),))
                 .insert(HitBehaviours {
@@ -140,7 +140,7 @@ fn spawn_heal_drops(
                 .spawn(HealDropBundle {
                     spite_bundle: SpriteBundle {
                         texture: heal_drop_assets.heal_drop.clone_weak(),
-                        transform: *transform,
+                        transform: transform.with_scale(Vec3::splat(3.0)),
                         ..Default::default()
                     },
                     movement_speed: MovementSpeed {
