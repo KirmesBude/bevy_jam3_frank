@@ -72,7 +72,8 @@ pub fn spawn_player(
             .memberships(MyCollisionGroups::PLAYER),))
         .id();
 
-    let transform = Transform::from_scale(Vec3::splat(3.0));
+    let mut transform = Transform::from_scale(Vec3::splat(3.0));
+    transform.translation.z = 1.0;
     let player_entity = commands
         .spawn(PlayerBundle {
             sprite_bundle: SpriteBundle {

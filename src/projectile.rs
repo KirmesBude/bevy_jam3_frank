@@ -108,10 +108,12 @@ fn spawn_projectile(
         })
         .id();
 
+    let transform = Transform::from_xyz(origin.translation.x, origin.translation.y, 2.0)
+        .with_scale(Vec3::splat(3.0));
     commands
         .spawn(ProjectileBundle {
             sprite_bundle: SpriteBundle {
-                transform: *origin,
+                transform,
                 texture: image,
                 ..Default::default()
             },

@@ -1,5 +1,7 @@
+use background::BackgroundPlugin;
 use bevy::prelude::*;
 
+mod background;
 mod camera;
 mod collision;
 mod damage;
@@ -41,5 +43,6 @@ fn main() {
         .add_plugin(ProjectilePlugin)
         .add_plugin(UiPlugin)
         .add_plugin(HealPlugin)
+        .add_plugin(BackgroundPlugin)
         .run();
 }

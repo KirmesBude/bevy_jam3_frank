@@ -100,9 +100,10 @@ fn spawn_enemy_continiously(
                 player_transform.translation().x + radius * random_angle.cos(),
                 player_transform.translation().y + radius * random_angle.sin(),
             );
+            let z = 1.0;
             spawn_enemy_events.send(SpawnEnemyEvent {
                 kind: EnemyKind::Bomb,
-                transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
+                transform: Transform::from_translation(Vec3::new(x, y, z)),
             });
         }
     }
